@@ -1,3 +1,6 @@
+#ifndef CGT_SAFEGL_HPP
+#define CGT_SAFEGL_HPP
+
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <memory>
@@ -55,3 +58,5 @@ namespace SafeGl
     using Texture = SafeHandle<GLuint, impl::deleteTexture>;
     using VertexArray = SafeHandle<GLuint, impl::deleteVertexArray>;
 }
+
+#endif
