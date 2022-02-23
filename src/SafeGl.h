@@ -1,9 +1,10 @@
-#ifndef CGT_SAFEGL_HPP
-#define CGT_SAFEGL_HPP
+#ifndef CGT_SAFEGL_H
+#define CGT_SAFEGL_H
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <memory>
+#include <filesystem>
 
 template<typename Handle, void (*del)(Handle)>
 struct HandleDeleter
@@ -25,7 +26,24 @@ struct HandleDeleter
 };
 
 template<typename Handle, void(*del)(Handle)>
-using SafeHandle = std::unique_ptr<void, HandleDeleter<Handle, del>>;
+//using SafeHandle = std::unique_ptr<void, HandleDeleter<Handle, del>>;
+struct SafeHandle : private std::unique_ptr<void, HandleDeleter<Handle, del>>
+{
+private:
+    using parent = std::unique_ptr<void, HandleDeleter<Handle, del>>;
+public:
+    using parent::parent;
+    using parent::operator=;
+    using parent::release;
+    using parent::reset;
+    using parent::swap;
+    //using parent::get;
+    using parent::operator bool;
+    operator Handle() const
+    {
+        return parent::get();
+    }
+};
 
 //To use SafeHandles through functions such as glGenBuffers
 template<typename Handle, void(*del)(Handle)>
@@ -57,6 +75,8 @@ namespace SafeGl
     using Program = SafeHandle<GLuint, impl::deleteProgram>;
     using Texture = SafeHandle<GLuint, impl::deleteTexture>;
     using VertexArray = SafeHandle<GLuint, impl::deleteVertexArray>;
+
+    Program loadAndCompileProgram(std::filesystem::path v, std::filesystem::path f);
 }
 
 #endif
