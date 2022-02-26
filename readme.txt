@@ -3,8 +3,10 @@ Cgt : C++ Game Tools
 Pour générer le projet :
     mkdir build
     cd build
-    cmake ..
+    cmake .. -DCMAKE_CXX_COMPILER=<compilateur supportant c++20>
     make
+(Si vous utilisez g++-10, call_cmake_ubuntu.sh effectue les 3 premières commandes)
+    
 Puis pour exécuter :
     ./Cgt
 
@@ -15,6 +17,5 @@ Commandes :
     UP/DOWN Modifier la vitesse de rotation du mode orbital
 
 
-En cas de problème de build sur les ordinateurs de la FDS : relancer la DSIN, puis forcer le compilateur c++ à g++-10 dans build/CMakeCache.txt
 
 Ce projet récupère des dépendances extérieures à l'aide de FetchContent. Vous pouvez activer FETCHCONTENT_UPDATES_DISCONNECTED dans CMakeCache.txt pour éviter que CMake ne cherche à vérifier en ligne si les dépendances sont à jour.
