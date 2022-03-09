@@ -36,11 +36,9 @@ public:
 
     const Transformation* parent() const;
     Transformation* parent();
-
+private:
     void parent(Transformation* p);
     void parent(Transformation& p);
-
-private:
     void markDirty();
 
     Vector _translation;

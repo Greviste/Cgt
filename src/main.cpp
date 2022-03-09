@@ -15,6 +15,7 @@
 #include "World.h"
 #include "Mesh.h"
 #include "Model.h"
+#include "Rotator.h"
 
 template<auto D>
 struct RaiiCall
@@ -78,7 +79,7 @@ std::tuple<std::vector<glm::vec3>, std::vector<unsigned short>> generatePlane(si
 void processInput(GLFWwindow* window);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
-glm::vec3 camera_position = glm::vec3(0.0f, -0.5f, 3.0f);
+glm::vec3 camera_position = glm::vec3(0.0f, 0.5f, 3.0f);
 glm::vec3 camera_target = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 camera_up = glm::vec3(0.0f, 1.0f, 0.0f);
 float orbital_angle = 0;
@@ -114,10 +115,36 @@ int main(void)
 
     Mesh mesh;
     setUnitSphere(mesh);
-    mesh.texture = loadImage("res/grass.png");
     World world;
-    Entity& entity = world.createEntity();
-    Model& model = entity.buildComponent<Model>(mesh);
+
+    Entity& root = world.createEntity();
+    Rotator& root_r = root.buildComponent<Rotator>(0.1);
+    Transformation& root_t = root.getOrBuildComponent<Transformation>();
+
+    Entity& sun = world.createEntity();
+    mesh.texture = loadImage("res/sun.jpg");
+    Model& sun_m = sun.buildComponent<Model>(mesh);
+    root_t.addChild(*sun.findComponent<Transformation>());
+
+    Entity& earth_moon = world.createEntity();
+    Transformation& earth_moon_t = earth_moon.buildComponent<Transformation>(glm::vec3(5, 0, 0));
+    Rotator& earth_moon_r = earth_moon.buildComponent<Rotator>(2);
+    root_t.addChild(earth_moon_t);
+
+    Entity& earth = world.createEntity();
+    Transformation& earth_t = earth.buildComponent<Transformation>(glm::vec3(-0.2, 0, 0));
+    earth_t.scale({ 0.5, 0.5, 0.5 });
+    mesh.texture = loadImage("res/earth.jpg");
+    Model& earth_m = earth.buildComponent<Model>(mesh);
+    Rotator& earth_r = earth.buildComponent<Rotator>(2);
+    earth_moon_t.addChild(earth_t);
+
+    Entity& moon = world.createEntity();
+    Transformation& moon_t = moon.buildComponent<Transformation>(glm::vec3(1, 0, 0));
+    moon_t.scale({ 0.1, 0.1, 0.1 });
+    mesh.texture = loadImage("res/moon.jpg");
+    Model& moon_m = moon.buildComponent<Model>(mesh);
+    earth_moon_t.addChild(moon_t);
 
     auto last_tick = std::chrono::high_resolution_clock::now();
     do
@@ -127,6 +154,10 @@ int main(void)
         last_tick = this_tick;
 
         processInput(window);
+        root_r.update(delta_time);
+        earth_moon_r.update(delta_time);
+        earth_r.update(delta_time);
+
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glm::mat4 view;
@@ -142,7 +173,9 @@ int main(void)
 
         glm::mat4 vp = projection * view;
 
-        model.draw(vp);
+        sun_m.draw(vp);
+        earth_m.draw(vp);
+        moon_m.draw(vp);
 
         glfwSwapBuffers(window);
         glfwPollEvents();

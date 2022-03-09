@@ -21,6 +21,8 @@ set(PROJECT_SOURCES
 	src/World.cpp
 	res/vertex_shader.glsl
 	res/fragment_shader.glsl
+	src/Rotator.h
+	src/Rotator.cpp
 )
 set(PROJECT_RESOURCES
 	res/vertex_shader.glsl
@@ -31,6 +33,9 @@ set(PROJECT_RESOURCES
 	res/grass.png
     res/rock.png
 	res/snowrocks.png
+	res/earth.jpg
+	res/sun.jpg
+	res/moon.jpg
 )
 
 include(FetchContent)
