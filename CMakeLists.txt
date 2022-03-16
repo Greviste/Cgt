@@ -23,6 +23,7 @@ set(PROJECT_SOURCES
 	res/fragment_shader.glsl
 	src/Rotator.h
 	src/Rotator.cpp
+	src/BaseInterfaces.h
 )
 set(PROJECT_RESOURCES
 	res/vertex_shader.glsl

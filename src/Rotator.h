@@ -6,11 +6,11 @@
 #include <chrono>
 
 
-class Rotator : public DependentComponent<Transformation>
+class Rotator : public DependentComponent<Transformation>, public Updateable
 {
 public:
     Rotator(const EntityKey& key, float rotation_rate);
-    void update(std::chrono::duration<float> delta);
+    void update(Seconds delta) override;
 private:
     float _rotation_rate;
     float _current_rotation = 0;

@@ -154,9 +154,7 @@ int main(void)
         last_tick = this_tick;
 
         processInput(window);
-        root_r.update(delta_time);
-        earth_moon_r.update(delta_time);
-        earth_r.update(delta_time);
+        world.update(delta_time);
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -173,9 +171,7 @@ int main(void)
 
         glm::mat4 vp = projection * view;
 
-        sun_m.draw(vp);
-        earth_m.draw(vp);
-        moon_m.draw(vp);
+        world.draw(vp);
 
         glfwSwapBuffers(window);
         glfwPollEvents();

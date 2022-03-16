@@ -3,14 +3,33 @@
 
 #include <vector>
 #include <memory>
-#include "Entity.h"
+#include <type_traits>
+#include "BaseInterfaces.h"
 
 class World
 {
+    friend class Entity;
 public:
     Entity& createEntity();
+    void update(Seconds);
+    void draw(const glm::mat4& vp);
 private:
+    template<typename T>
+    void registerComponent(T& component)
+    {
+        if constexpr (std::is_convertible_v<T*, Updateable*>)
+        {
+            _updateables.push_back(&component);
+        }
+        if constexpr (std::is_convertible_v<T*, Drawable*>)
+        {
+            _drawables.push_back(&component);
+        }
+    }
+
     std::vector<std::unique_ptr<Entity>> _entities;
+    std::vector<Updateable*> _updateables;
+    std::vector<Drawable*> _drawables;
 };
 
 #endif

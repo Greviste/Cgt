@@ -67,13 +67,13 @@ void Model::rebuildMesh()
     glGenerateMipmap(GL_TEXTURE_2D);
 }
 
-void Model::draw(glm::mat4 vp) const
+void Model::draw(const glm::mat4& vp) const
 {
     glBindVertexArray(_vao);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, _texture);
     glUseProgram(_program);
-    vp *= get<Transformation>().matrix();
-    glUniformMatrix4fv(0, 1, GL_FALSE, &vp[0][0]);
+    glm::mat4 mvp = vp * get<Transformation>().matrix();
+    glUniformMatrix4fv(0, 1, GL_FALSE, &mvp[0][0]);
     glDrawElements(GL_TRIANGLES, _mesh.triangles.size() * 3, GL_UNSIGNED_INT, nullptr);
 }

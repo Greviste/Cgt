@@ -2,6 +2,7 @@
 #define CGT_ENTITY_H
 
 #include "WeakRef.hpp"
+#include "World.h"
 #include <vector>
 #include <memory>
 #include <concepts>
@@ -31,6 +32,7 @@ public:
         auto uptr = std::make_unique<T>(EntityKey{ this }, std::forward<Args>(args)...);
         T& ref = *uptr;
         _components.push_back(std::move(uptr));
+        _world->registerComponent(ref);
         return ref;
     }
 
@@ -51,9 +53,12 @@ public:
         if (T* ptr = findComponent<T>(); ptr) return *ptr;
         return buildComponent<T>();
     }
-private:
-    Entity();
 
+    World& world() const;
+private:
+    Entity(World&);
+
+    World* _world;
     std::vector<std::unique_ptr<Component>> _components;
 };
 

@@ -6,11 +6,11 @@
 #include "Mesh.h"
 #include "Transformation.h"
 
-class Model : public DependentComponent<Transformation>
+class Model : public DependentComponent<Transformation>, public Drawable
 {
 public:
     Model(const EntityKey& key, Mesh mesh);
-    void draw(glm::mat4 vp) const;
+    void draw(const glm::mat4& vp) const override;
 private:
     void rebuildMesh();
 
