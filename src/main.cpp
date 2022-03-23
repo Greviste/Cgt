@@ -11,6 +11,7 @@
 #include <filesystem>
 #include <fstream>
 #include <sstream>
+#include <cstring>
 
 #include "World.h"
 #include "Mesh.h"

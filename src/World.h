@@ -6,6 +6,8 @@
 #include <type_traits>
 #include "BaseInterfaces.h"
 
+class Entity;
+
 class World
 {
     friend class Entity;

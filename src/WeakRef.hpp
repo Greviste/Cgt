@@ -14,7 +14,7 @@ protected:
         if(_self) *_self = this;
     }
 
-    WeakReferencable& operator=(const WeakReferencable& other) {}
+    WeakReferencable& operator=(const WeakReferencable& other) { return *this; }
     WeakReferencable& operator=(WeakReferencable&& other) noexcept
     {
         if(_self) *_self = nullptr;
