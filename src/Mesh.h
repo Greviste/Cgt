@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <glm/glm.hpp>
+#include <SafeGl.h>
 
 struct Rgba
 {
@@ -20,7 +21,7 @@ struct Triangle
     unsigned a, b, c;
 };
 
-struct Mesh
+struct MeshData
 {
     std::vector<glm::vec3> vertices;
     std::vector<glm::vec3> normals;
@@ -29,6 +30,8 @@ struct Mesh
     Image texture;
 };
 
-void setUnitSphere(Mesh& o_mesh, unsigned nX = 20, unsigned nY = 20);
+void setUnitSphere(MeshData& o_mesh, unsigned nX = 20, unsigned nY = 20);
+glm::vec4 sampleImage(const Image& img, float u, float v);
+SafeGl::Texture toTexture(const Image& img);
 
 #endif

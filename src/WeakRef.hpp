@@ -48,7 +48,8 @@ struct WeakRef
 private:
     std::shared_ptr<const WeakReferencable*> _ptr;
 public:
-    WeakRef() = default;
+    WeakRef(std::nullptr_t = nullptr) {};
+    WeakRef(T* ptr) requires std::derived_from<std::remove_cv_t<T>, WeakReferencable> : _ptr(ptr? ptr->getSelfPtr() : nullptr) {};
     WeakRef(T& ref) requires std::derived_from<std::remove_cv_t<T>, WeakReferencable> : _ptr(ref.getSelfPtr()) {}
     WeakRef(const WeakRef& other) = default;
     WeakRef(WeakRef&& other) noexcept
@@ -69,6 +70,8 @@ public:
     WeakRef& operator=(WeakRef&& other) noexcept
     {
         swap(_ptr, other._ptr);
+
+        return *this;
     }
 
     //Returns nullptr if invalid. The other accessors lead to undefined behaviour when invalid

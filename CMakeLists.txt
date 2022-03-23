@@ -19,15 +19,21 @@ set(PROJECT_SOURCES
 	src/WeakRef.hpp
 	src/World.h
 	src/World.cpp
-	res/vertex_shader.glsl
-	res/fragment_shader.glsl
 	src/Rotator.h
 	src/Rotator.cpp
+	src/Terrain.h
+	src/Terrain.cpp
+	src/SimpleMovement.h
+	src/SimpleMovement.cpp
 	src/BaseInterfaces.h
 )
-set(PROJECT_RESOURCES
+set(PROJECT_SHADERS
 	res/vertex_shader.glsl
 	res/fragment_shader.glsl
+	res/terrain_vertex_shader.glsl
+	res/terrain_fragment_shader.glsl
+)
+set(PROJECT_RESOURCES
 	res/heightmap-1024x1024.png
 	res/Heightmap_Mountain.png
 	res/Heightmap_Rocky.png
@@ -68,8 +74,8 @@ FetchContent_MakeAvailable(STB GLEW GLM GLFW)
 add_subdirectory(${glew_SOURCE_DIR}/build/cmake)
 target_include_directories(glew_s INTERFACE $<BUILD_INTERFACE:${glew_SOURCE_DIR}/include>)
 
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${PROJECT_SOURCES})
-add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${PROJECT_SOURCES} ${PROJECT_SHADERS})
+add_executable(${PROJECT_NAME} ${PROJECT_SOURCES} ${PROJECT_SHADERS})
 set_target_properties(${PROJECT_NAME}
     PROPERTIES
         CXX_STANDARD 20
@@ -81,6 +87,6 @@ target_link_libraries(${PROJECT_NAME} glew_s glm glfw)
 target_include_directories(${PROJECT_NAME} PRIVATE ${stb_SOURCE_DIR} src)
 
 #Copy ressources next to executable
-foreach(RES ${PROJECT_RESOURCES})
+foreach(RES ${PROJECT_RESOURCES} ${PROJECT_SHADERS})
 	configure_file(${RES} ${RES} COPYONLY)
 endforeach()
