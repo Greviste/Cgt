@@ -12,7 +12,7 @@ void World::update(Seconds s)
     for (auto u : _updateables) u->update(s);
 }
 
-void World::draw(const glm::mat4& vp)
+void World::draw(const glm::mat4& v, const glm::mat4& p)
 {
-    for (auto d : _drawables) d->draw(vp);
+    for (auto d : _drawables) d->draw(v, p);
 }

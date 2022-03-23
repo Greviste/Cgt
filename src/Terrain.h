@@ -10,7 +10,7 @@ class Terrain : public DependentComponent<Transformation>, public Drawable
 {
 public:
     Terrain(const EntityKey& key, Image heightmap, Image grass, Image rock, Image snow);
-    void draw(const glm::mat4& vp) const override;
+    void draw(const glm::mat4& v, const glm::mat4& p) const override;
     float getAltitudeOf(const glm::vec3& pos) const;
 
 private:

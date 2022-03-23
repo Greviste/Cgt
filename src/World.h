@@ -14,7 +14,7 @@ class World
 public:
     Entity& createEntity();
     void update(Seconds);
-    void draw(const glm::mat4& vp);
+    void draw(const glm::mat4& v, const glm::mat4& p);
 private:
     template<typename T>
     void registerComponent(T& component)

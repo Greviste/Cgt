@@ -15,7 +15,7 @@ public:
 class Drawable
 {
 public:
-    virtual void draw(const glm::mat4& vp) const = 0;
+    virtual void draw(const glm::mat4& v, const glm::mat4& p) const = 0;
 };
 
 #endif

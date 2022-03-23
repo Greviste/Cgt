@@ -95,6 +95,10 @@ int main(void)
         Entity& earth = world.createEntity();
         earth.getOrBuildComponent<Transformation>().scale({ 0.05, 0.05, 0.05 });
         Model& earth_m = earth.buildComponent<Model>(loadImage("res/earth.jpg"), mesh);
+        setUnitSphere(mesh, 10, 10);
+        earth_m.addLod(mesh, 1);
+        setUnitSphere(mesh, 3, 3);
+        earth_m.addLod(mesh, 1); //total 2
         earth.buildComponent<SimpleMovement>().terrain(terrain_comp);
 
         auto last_tick = std::chrono::high_resolution_clock::now();
@@ -120,9 +124,7 @@ int main(void)
             }
             glm::mat4 projection = glm::perspective(glm::radians(45.f), 4.f / 3, 0.1f, 100.f);
 
-            glm::mat4 vp = projection * view;
-
-            world.draw(vp);
+            world.draw(view, projection);
 
             glfwSwapBuffers(window);
             glfwPollEvents();
