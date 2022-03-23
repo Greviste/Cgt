@@ -104,3 +104,61 @@ SafeGl::Texture toTexture(const Image& img)
 
     return tex;
 }
+
+Mesh::Mesh(const MeshData& data)
+{
+    glGenVertexArrays(1, handleInit(_vao));
+    unsigned stride = 3;
+    if (!data.normals.empty()) stride += 3;
+    if (!data.uvs.empty()) stride += 2;
+    std::vector<float> vertices(data.vertices.size() * stride);
+    auto it = std::begin(vertices);
+    for (std::size_t i = 0; i < data.vertices.size(); ++i)
+    {
+        glm::vec3 v = data.vertices[i];
+        *(it++) = v.x;
+        *(it++) = v.y;
+        *(it++) = v.z;
+        if (!data.normals.empty())
+        {
+            glm::vec3 n = data.normals[i];
+            *(it++) = n.x;
+            *(it++) = n.y;
+            *(it++) = n.z;
+        }
+        if (!data.uvs.empty())
+        {
+            glm::vec2 uv = data.uvs[i];
+            *(it++) = uv.x;
+            *(it++) = uv.y;
+        }
+    }
+
+    //VBOs can be deleted when bound to a VAO
+    glBindVertexArray(_vao);
+    glGenBuffers(1, handleInit(_vertex_buffer));
+    glBindBuffer(GL_ARRAY_BUFFER, _vertex_buffer);
+    glGenBuffers(1, handleInit(_element_buffer));
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _element_buffer);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, data.triangles.size() * 3 * sizeof(unsigned), data.triangles.data(), GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)0);
+    if (!data.normals.empty())
+    {
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(3 * sizeof(float)));
+    }
+    if (!data.uvs.empty())
+    {
+        glEnableVertexAttribArray(2);
+        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)((data.normals.empty() ? 3 : 6) * sizeof(float)));
+    }
+    _size = data.triangles.size() * 3;
+}
+
+void Mesh::drawCall() const
+{
+    glBindVertexArray(_vao);
+    glDrawElements(GL_TRIANGLES, _size, GL_UNSIGNED_INT, nullptr);
+}

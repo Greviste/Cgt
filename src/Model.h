@@ -9,17 +9,12 @@
 class Model : public DependentComponent<Transformation>, public Drawable
 {
 public:
-    Model(const EntityKey& key, MeshData mesh);
+    Model(const EntityKey& key, const Image& img, const MeshData& mesh);
     void draw(const glm::mat4& vp) const override;
 private:
-    void rebuildMesh();
-
-    MeshData _mesh_data;
-    SafeGl::VertexArray _vao;
-    SafeGl::Buffer _vertex_buffer;
-    SafeGl::Buffer _element_buffer;
-    SafeGl::Texture _texture;
+    Mesh _mesh;
     SafeGl::Program _program;
+    SafeGl::Texture _texture;
 };
 
 #endif

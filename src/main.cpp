@@ -94,8 +94,7 @@ int main(void)
 
         Entity& earth = world.createEntity();
         earth.getOrBuildComponent<Transformation>().scale({ 0.05, 0.05, 0.05 });
-        mesh.texture = loadImage("res/earth.jpg");
-        Model& earth_m = earth.buildComponent<Model>(mesh);
+        Model& earth_m = earth.buildComponent<Model>(loadImage("res/earth.jpg"), mesh);
         earth.buildComponent<SimpleMovement>().terrain(terrain_comp);
 
         auto last_tick = std::chrono::high_resolution_clock::now();
