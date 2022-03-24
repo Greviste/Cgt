@@ -91,6 +91,7 @@ int main(void)
 
         Entity& terrain = world.createEntity();
         Terrain& terrain_comp = terrain.buildComponent<Terrain>(loadImage("res/Heightmap_Rocky.png"), loadImage("res/grass.png"), loadImage("res/rock.png"), loadImage("res/snowrocks.png"));
+        terrain.getOrBuildComponent<Transformation>().scale({5,1,5});
 
         Entity& earth = world.createEntity();
         earth.getOrBuildComponent<Transformation>().scale({ 0.05, 0.05, 0.05 });

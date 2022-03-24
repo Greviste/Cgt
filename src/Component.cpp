@@ -6,7 +6,28 @@ Component::Component(const EntityKey& key)
 {
 }
 
+void Component::destroy()
+{
+    _marked_for_destroy = true;
+    checkDestroy();
+}
+
 Entity& Component::owner() const
 {
     return *_owner;
+}
+
+World& Component::world() const
+{
+    return _owner->world();
+}
+
+void Component::checkDestroy()
+{
+    if(shouldDestroy()) world()._should_cleanup = true;
+}
+
+bool Component::shouldDestroy()
+{
+    return _marked_for_destroy && _clients == 0;
 }

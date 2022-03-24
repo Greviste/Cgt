@@ -21,10 +21,13 @@ private:
 class Entity : public WeakReferencable
 {
     friend class World;
+    friend class Component;
 public:
     Entity(const Entity&) = delete;
     Entity(Entity&&) = delete;
     ~Entity();
+
+    void destroy();
 
     template<std::derived_from<Component> T, typename... Args>
     T& buildComponent(Args&&... args)
@@ -60,6 +63,7 @@ private:
 
     World* _world;
     std::vector<std::unique_ptr<Component>> _components;
+    bool _marked_for_destroy = false;
 };
 
 #endif

@@ -7,14 +7,16 @@
 #include "BaseInterfaces.h"
 
 class Entity;
+class Component;
 
 class World
 {
     friend class Entity;
+    friend class Component;
 public:
     Entity& createEntity();
     void update(Seconds);
-    void draw(const glm::mat4& v, const glm::mat4& p);
+    void draw(const glm::mat4& v, const glm::mat4& p) const;
 private:
     template<typename T>
     void registerComponent(T& component)
@@ -32,6 +34,7 @@ private:
     std::vector<std::unique_ptr<Entity>> _entities;
     std::vector<Updateable*> _updateables;
     std::vector<Drawable*> _drawables;
+    bool _should_cleanup = false;
 };
 
 #endif

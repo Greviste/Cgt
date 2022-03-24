@@ -48,7 +48,7 @@ Terrain::Terrain(const EntityKey& key, Image heightmap, Image grass, Image rock,
 
 void Terrain::rebuildMesh()
 {
-    auto [vertices, indices] = generatePlane(20);
+    auto [vertices, indices] = generatePlane(50);
     //VBOs can be deleted when bound to a VAO
     glBindVertexArray(_vao);
     glGenBuffers(1, handleInit(_vertex_buffer));
