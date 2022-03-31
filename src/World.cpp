@@ -1,6 +1,7 @@
 #include "World.h"
 #include "Entity.h"
 #include "Component.h"
+#include <algorithm>
 
 Entity& World::createEntity()
 {
@@ -27,7 +28,19 @@ void World::update(Seconds s)
                 auto cit = (*it)->_components.begin();
                 while(cit != (*it)->_components.end())
                 {
-                    if((*cit)->shouldDestroy()) cit = (*it)->_components.erase(cit);
+                    if ((*cit)->shouldDestroy())
+                    {
+                        Component* ptr = cit->get();
+                        if (Drawable* drawable = dynamic_cast<Drawable*>(ptr))
+                        {
+                            _drawables.erase(std::remove(_drawables.begin(), _drawables.end(), drawable), _drawables.end());
+                        }
+                        if (Updateable* updateable = dynamic_cast<Updateable*>(ptr))
+                        {
+                            _updateables.erase(std::remove(_updateables.begin(), _updateables.end(), updateable), _updateables.end());
+                        }
+                        cit = (*it)->_components.erase(cit);
+                    }
                     else ++cit;
                 }
                 ++it;
