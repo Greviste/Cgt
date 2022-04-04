@@ -8,7 +8,7 @@ Transformation::Transformation(const EntityKey& key, Vector translation, Vector 
 {
 }
 
-Transformation::~Transformation()
+void Transformation::stop()
 {
     if (_parent) _parent->removeChild(*this);
     for (auto c : _children) c->parent(nullptr);
@@ -72,7 +72,7 @@ Matrix Transformation::invMatrix() const
 void Transformation::addChild(Transformation& c)
 {
     assert(&c != this);
-    _children.push_back(&c);
+    _children.emplace_back(c);
     c.parent(this);
 }
 
@@ -85,7 +85,7 @@ void Transformation::removeChild(Transformation& c)
 
 const Transformation* Transformation::parent() const
 {
-    return _parent;
+    return _parent.ptr();
 }
 
 void Transformation::parent(Transformation* p)

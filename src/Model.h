@@ -8,11 +8,11 @@
 #include <vector>
 #include <utility>
 
-class Model : public DependentComponent<Transformation>, public Drawable
+class Model : public DependentComponent<Transformation>
 {
 public:
     Model(const EntityKey& key, const Image& img, const MeshData& mesh);
-    void draw(const glm::mat4& v, const glm::mat4& p) const override;
+    void draw(const glm::mat4& v, const glm::mat4& p) const;
     void addLod(const MeshData& data, float after_dist);
 
 private:

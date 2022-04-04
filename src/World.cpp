@@ -11,45 +11,33 @@ Entity& World::createEntity()
 
 void World::update(Seconds s)
 {
-    for (auto u : _updateables) u->update(s);
+    forEachManager([&s](ComponentManagerBase& m) { m.update(s); });
 
     while(_should_cleanup)
     {
         _should_cleanup = false;
         auto it = _entities.begin();
-        while(it != _entities.end())
-        {
-            if((*it)->_marked_for_destroy)
-            {
-                it = _entities.erase(it);
-            }
-            else
-            {
-                auto cit = (*it)->_components.begin();
-                while(cit != (*it)->_components.end())
-                {
-                    if ((*cit)->shouldDestroy())
-                    {
-                        Component* ptr = cit->get();
-                        if (Drawable* drawable = dynamic_cast<Drawable*>(ptr))
-                        {
-                            _drawables.erase(std::remove(_drawables.begin(), _drawables.end(), drawable), _drawables.end());
-                        }
-                        if (Updateable* updateable = dynamic_cast<Updateable*>(ptr))
-                        {
-                            _updateables.erase(std::remove(_updateables.begin(), _updateables.end(), updateable), _updateables.end());
-                        }
-                        cit = (*it)->_components.erase(cit);
-                    }
-                    else ++cit;
-                }
-                ++it;
-            }
-        }
+        erase_if(_entities, [](auto& ptr) { return ptr->_marked_for_destroy; });
+        forEachManager([&s](ComponentManagerBase& m) { m.cleanup(s); });
     }
 }
 
 void World::draw(const glm::mat4& v, const glm::mat4& p) const
 {
-    for (auto d : _drawables) d->draw(v, p);
+    for (auto& elem : _managers) elem.second->draw(v, p);
+}
+
+template<typename F>
+void World::forEachManager(F&& func)
+{
+    for (auto& elem : _managers) func(*elem.second);
+    while (!_additional_managers.empty())
+    {
+        auto list = std::move(_additional_managers);
+        for (auto& elem : list)
+        {
+            func(*elem.second);
+            _managers.emplace(std::move(elem));
+        }
+    }
 }

@@ -9,25 +9,34 @@ class Entity;
 struct EntityKey;
 template<typename... Comps>
 class DependentComponent;
+template<typename C>
+class ComponentManager;
 
 class Component : public WeakReferencable
 {
     template<typename... Comps>
     friend class DependentComponent;
+    template<typename C>
+    friend class ComponentManager;
     friend class Entity;
     friend class World;
 public:
     Component(const EntityKey& key);
-    virtual ~Component() = default;
+    Component(Component&&) = default;
+    Component& operator=(Component&&) = default;
 
     void destroy();
     Entity& owner() const;
     World& world() const;
+
+protected:
+    ~Component() = default;
+
 private:
     void checkDestroy();
     bool shouldDestroy();
 
-    Entity* _owner = nullptr;
+    WeakRef<Entity> _owner;
     unsigned short _clients = 0;
     bool _marked_for_destroy = false;
 };
@@ -40,25 +49,48 @@ class DependentComponent : public Component
 {
 public:
     DependentComponent(const EntityKey& key)
-        : Component(key), _dependencies{ &owner().getOrBuildComponent<Comps>()... }
+        : Component(key), _dependencies{ owner().getOrBuildComponent<Comps>()... }
     {
-        (++std::get<Comps*>(_dependencies)->_clients , ...);
     }
-
-    ~DependentComponent()
-    {
-        (--std::get<Comps*>(_dependencies)->_clients , ...);
-        (std::get<Comps*>(_dependencies)->checkDestroy() , ...);
-    }
+    DependentComponent(DependentComponent&&) = default;
+    DependentComponent& operator=(DependentComponent&&) = default;
 
     template<oneOf<Comps...> T>
     T& get() const
     {
-        return *std::get<T*>(_dependencies);
+        return *std::get<DependentRef<T>>(_dependencies)._ref;
     }
 
+protected:
+    ~DependentComponent() = default;
+
 private:
-    std::tuple<Comps*...> _dependencies;
+    template<typename T>
+    struct DependentRef
+    {
+        DependentRef(T& ref) :_ref(ref) { ++ref._clients; }
+        ~DependentRef()
+        {
+            if (!_ref) return;
+            --_ref->_clients;
+            _ref->checkDestroy();
+        }
+
+        DependentRef(DependentRef&& other)
+            :_ref(std::move(other._ref))
+        {
+        }
+        DependentRef& operator=(DependentRef&& other)
+        {
+            using std::swap;
+            DependentRef copy = std::move(other);
+            swap(_ref, copy._ref);
+            return *this;
+        }
+
+        WeakRef<T> _ref;
+    };
+    std::tuple<DependentRef<Comps>...> _dependencies;
 };
 
 #endif

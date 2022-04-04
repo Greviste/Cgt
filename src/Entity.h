@@ -3,9 +3,10 @@
 
 #include "WeakRef.hpp"
 #include "World.h"
-#include <vector>
-#include <memory>
+#include <unordered_map>
 #include <concepts>
+#include <typeinfo>
+#include <typeindex>
 
 class Component;
 struct EntityKey
@@ -32,20 +33,19 @@ public:
     template<std::derived_from<Component> T, typename... Args>
     T& buildComponent(Args&&... args)
     {
-        auto uptr = std::make_unique<T>(EntityKey{ this }, std::forward<Args>(args)...);
-        T& ref = *uptr;
-        _components.push_back(std::move(uptr));
-        _world->registerComponent(ref);
+        T& ref = _world->buildComponent<T>(EntityKey{ this }, std::forward<Args>(args)...);
+        _components.emplace(typeid(T), ref);
         return ref;
     }
 
     template<std::derived_from<Component> T>
-    T* findComponent()
+    T* findComponent() const
     {
-        //For now, it'll be ugly
-        for (auto& uptr : _components)
+        auto [it, sentinel] = _components.equal_range(typeid(T));
+        while (it != sentinel)
         {
-            if (T* ptr = dynamic_cast<T*>(uptr.get()); ptr) return ptr;
+            if (it->second) return static_cast<T*>(it->second.ptr());
+            it = _components.erase(it);
         }
         return nullptr;
     }
@@ -62,7 +62,7 @@ private:
     Entity(World&);
 
     World* _world;
-    std::vector<std::unique_ptr<Component>> _components;
+    mutable std::unordered_multimap<std::type_index, WeakRef<Component>> _components;
     bool _marked_for_destroy = false;
 };
 

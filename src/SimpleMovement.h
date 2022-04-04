@@ -6,12 +6,12 @@
 #include "Terrain.h"
 
 
-class SimpleMovement : public DependentComponent<Transformation>, public Updateable
+class SimpleMovement : public DependentComponent<Transformation>
 {
 public:
     using DependentComponent::DependentComponent;
 
-    void update(Seconds delta) override;
+    void update(Seconds delta);
     void terrain(Terrain* t);
     void terrain(Terrain& t);
     Terrain* terrain() const;

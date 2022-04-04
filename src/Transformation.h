@@ -16,7 +16,7 @@ class Transformation : public Component
 {
 public:
     Transformation(const EntityKey& key, Vector translation = { 0,0,0 }, Vector euler_rotation = { 0,0,0 }, Vector scale = { 1,1,1 });
-    ~Transformation();
+    void stop();
 
     Vector translation() const;
     void translation(Vector v);
@@ -44,8 +44,8 @@ private:
     Vector _translation;
     Quaternion _rotation;
     Vector _scale;
-    Transformation* _parent = nullptr;
-    std::vector<Transformation*> _children;
+    WeakRef<Transformation> _parent = nullptr;
+    std::vector<WeakRef<Transformation>> _children;
 
     //Cached
     mutable std::optional<Matrix> _matrix;

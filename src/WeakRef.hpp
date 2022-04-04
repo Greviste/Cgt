@@ -14,9 +14,11 @@ protected:
         if(_self) *_self = this;
     }
 
-    WeakReferencable& operator=(const WeakReferencable& other) { return *this; }
+    WeakReferencable& operator=(const WeakReferencable& other) = delete;
     WeakReferencable& operator=(WeakReferencable&& other) noexcept
     {
+        if (&other == this) return *this;
+
         if(_self) *_self = nullptr;
         _self = std::move(other._self);
         if(_self) *_self = this;
@@ -49,8 +51,8 @@ private:
     std::shared_ptr<const WeakReferencable*> _ptr;
 public:
     WeakRef(std::nullptr_t = nullptr) {};
-    WeakRef(T* ptr) requires std::derived_from<std::remove_cv_t<T>, WeakReferencable> : _ptr(ptr? ptr->getSelfPtr() : nullptr) {};
-    WeakRef(T& ref) requires std::derived_from<std::remove_cv_t<T>, WeakReferencable> : _ptr(ref.getSelfPtr()) {}
+    WeakRef(T* ptr) : _ptr(ptr? ptr->getSelfPtr() : nullptr) {};
+    WeakRef(T& ref) : _ptr(ref.getSelfPtr()) {}
     WeakRef(const WeakRef& other) = default;
     WeakRef(WeakRef&& other) noexcept
     {
@@ -99,6 +101,10 @@ public:
     {
         return ptr() != nullptr;
     }
+
+    friend bool operator==(const WeakRef& l, const WeakRef& r) = default;
+    friend bool operator==(const WeakRef& l, const WeakReferencable* r) { return l.ptr() == r; }
+    friend bool operator==(const WeakReferencable* l, const WeakRef& r) { return r == l; }
 };
 
 #endif

@@ -25,7 +25,7 @@ set(PROJECT_SOURCES
 	src/Terrain.cpp
 	src/SimpleMovement.h
 	src/SimpleMovement.cpp
-	src/BaseInterfaces.h
+	src/ComponentManager.hpp
 )
 set(PROJECT_SHADERS
 	res/vertex_shader.glsl

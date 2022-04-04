@@ -6,11 +6,11 @@
 #include "Mesh.h"
 #include "Transformation.h"
 
-class Terrain : public DependentComponent<Transformation>, public Drawable
+class Terrain : public DependentComponent<Transformation>
 {
 public:
     Terrain(const EntityKey& key, Image heightmap, Image grass, Image rock, Image snow);
-    void draw(const glm::mat4& v, const glm::mat4& p) const override;
+    void draw(const glm::mat4& v, const glm::mat4& p) const;
     float getAltitudeOf(const glm::vec3& pos) const;
 
 private:

@@ -29,5 +29,5 @@ void Component::checkDestroy()
 
 bool Component::shouldDestroy()
 {
-    return _marked_for_destroy && _clients == 0;
+    return !_owner || _marked_for_destroy && _clients == 0;
 }
