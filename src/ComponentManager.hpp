@@ -10,7 +10,7 @@
 
 class Entity;
 
-namespace
+namespace Utility
 {
     template<typename R, typename F>
     auto forEachRemovable(R&& range, F&& func)
@@ -66,7 +66,7 @@ public:
 
     void cleanup(Seconds delta) override
     {
-        _components.erase(forEachRemovable(_components, [](C& c) {
+        _components.erase(Utility::forEachRemovable(_components, [](C& c) {
             if constexpr (requires (C & c) { c.stop(); }) if (c.shouldDestroy()) c.stop();
             return c.shouldDestroy();
         }), end(_components));
