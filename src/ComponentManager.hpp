@@ -6,31 +6,11 @@
 #include <utility>
 #include <glm/glm.hpp>
 #include <forward_list>
+#include "Utility.h"
 
 
 class Entity;
 
-namespace Utility
-{
-    template<typename R, typename F>
-    auto forEachRemovable(R&& range, F&& func)
-    {
-        using std::begin, std::end;
-        auto write_it = begin(range);
-        auto elem_it = begin(range);
-        auto sentinel = end(range);
-        while (elem_it != sentinel)
-        {
-            if (!func(*elem_it))
-            {
-                *(write_it++) = std::move(*elem_it);
-            }
-            ++elem_it;
-        }
-
-        return write_it;
-    }
-}
 
 using Seconds = std::chrono::duration<float>;
 

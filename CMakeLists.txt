@@ -26,6 +26,8 @@ set(PROJECT_SOURCES
 	src/SimpleMovement.h
 	src/SimpleMovement.cpp
 	src/ComponentManager.hpp
+	src/Utility.h
+	src/Event.hpp
 )
 set(PROJECT_SHADERS
 	res/vertex_shader.glsl
