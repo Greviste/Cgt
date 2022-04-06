@@ -22,14 +22,13 @@ class Component : public WeakReferencable
     friend class World;
 public:
     Component(const EntityKey& key);
-    Component(Component&&) = default;
-    Component& operator=(Component&&) = default;
-
     void destroy();
     Entity& owner() const;
     World& world() const;
 
 protected:
+    Component(Component&&) = default;
+    Component& operator=(Component&&) = default;
     ~Component() = default;
 
 private:
@@ -52,6 +51,7 @@ public:
         : Component(key), _dependencies{ owner().getOrBuildComponent<Comps>()... }
     {
     }
+protected:
     DependentComponent(DependentComponent&&) = default;
     DependentComponent& operator=(DependentComponent&&) = default;
 
@@ -60,8 +60,6 @@ public:
     {
         return *std::get<DependentRef<T>>(_dependencies)._ref;
     }
-
-protected:
     ~DependentComponent() = default;
 
 private:
