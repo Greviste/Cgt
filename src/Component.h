@@ -33,7 +33,7 @@ protected:
 
 private:
     void checkDestroy();
-    bool shouldDestroy();
+    bool shouldDestroy() const;
 
     WeakRef<Entity> _owner;
     unsigned short _clients = 0;

@@ -27,7 +27,7 @@ void Component::checkDestroy()
     if(shouldDestroy()) world()._should_cleanup = true;
 }
 
-bool Component::shouldDestroy()
+bool Component::shouldDestroy() const
 {
     return !_owner || _marked_for_destroy && _clients == 0;
 }
