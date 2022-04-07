@@ -18,9 +18,11 @@ public:
     Transformation(const EntityKey& key, Vector translation = { 0,0,0 }, Quaternion rotation = { 1, 0, 0, 0 }, Vector scale = { 1,1,1 });
     void stop();
 
+    Vector worldPosition() const;
     Vector translation() const;
     void translation(Vector v);
 
+    Quaternion worldRotation() const;
     Quaternion rotation() const;
     void rotation(Quaternion v);
 

@@ -14,6 +14,11 @@ void Transformation::stop()
     for (auto c : _children) c->parent(nullptr);
 }
 
+Vector Transformation::worldPosition() const
+{
+    return matrix() * glm::vec4(0, 0, 0, 1);
+}
+
 Vector Transformation::translation() const
 {
     return _translation;
@@ -23,6 +28,11 @@ void Transformation::translation(Vector v)
 {
     _translation = v;
     markDirty();
+}
+
+Quaternion Transformation::worldRotation() const
+{
+    return _parent ? _parent->worldRotation() * _rotation : _rotation;
 }
 
 Quaternion Transformation::rotation() const

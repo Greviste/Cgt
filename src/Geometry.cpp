@@ -239,18 +239,16 @@ bool intersect(const Obb& l, const Obb& r)
     return true;
 }
 
-//For movement intersections, l is always assumed to be static
-
 std::optional<Intersection> intersectMoving(const Sphere& l, const Sphere& r, glm::vec3 movement)
 {
     float radius = l.radius + r.radius;
     float d = dot(r.center - l.center, movement);
     float v2 = length2(movement);
-    float delta = 4 * (sqr(d) - v2 * (distance2(l.center, r.center) - sqr(radius)));
-    float t = (-d - 2 * std::sqrt(delta)) / (2 * v2);
+    float delta_fourth = sqr(d) - v2 * (distance2(l.center, r.center) - sqr(radius));
+    float t = (-d - std::sqrt(delta_fourth)) / v2;
     if (t < 0)
     {
-        t = (-d + 2 * std::sqrt(delta)) / (2 * v2);
+        t = (-d + std::sqrt(delta_fourth)) / v2;
         if (t < 0) return std::nullopt;
     }
     if (t > 1) return std::nullopt;
@@ -494,7 +492,7 @@ namespace
         glm::vec3 axisv_inv = glm::vec3{ 1,1,1 } - axisv;
         float a = length2(movement * axisv_inv);
         float b = 2 * dot(delta * axisv_inv, movement * axisv_inv);
-        float c = length2(delta * axisv_inv);
+        float c = length2(delta * axisv_inv) - sqr(radius);
         float d = sqr(b) - 4 * a * c;
         if (d < 0) return std::nullopt;
         float t = (-b - sqrt(d)) / (2 * a);
@@ -516,7 +514,7 @@ namespace
     {
         using std::abs;
 
-        float t = -delta[axis] / movement[axis];
+        float t = (radius - delta[axis]) / movement[axis];
         if (t < 0 || t > 1) return std::nullopt;
         glm::vec3 contact = extents + delta + movement * t;
         for (int i = 0; i < 2; ++i)
@@ -644,4 +642,14 @@ std::optional<Intersection> intersectMoving(const Obb& l, Sphere r, const glm::v
 std::optional<Intersection> intersectMoving(const Sphere& l, const Obb& r, const glm::vec3& movement)
 {
     return swapAndIntersect(l, r, movement);
+}
+
+bool intersect(const AnyCol& l, const AnyCol& r)
+{
+    return std::visit([](const auto& l, const auto& r) {return intersect(l, r); }, l, r);
+}
+
+std::optional<Intersection> intersectMoving(const AnyCol& l, const AnyCol& r, const glm::vec3& movement)
+{
+    return std::visit([&](const auto& l, const auto& r) {return intersectMoving(l, r, movement); }, l, r);
 }

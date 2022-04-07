@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <optional>
+#include <variant>
 
 struct Segment
 {
@@ -15,7 +16,7 @@ struct Sphere
     float radius;
 };
 
-struct Capsule
+struct Capsule //Currently not entirely supported
 {
     Segment segment;
     float radius;
@@ -40,6 +41,10 @@ struct Intersection
     glm::vec3 normal;
     float t;
 };
+
+using AnyCol = std::variant<Sphere, Aabb, Obb>;
+
+constexpr float TinyLength = 0.0001f;
 
 float projectionCoord(const glm::vec3& x, const glm::vec3& on);
 float projectionCoord(const glm::vec3& p, const Segment& s);
@@ -71,5 +76,9 @@ std::optional<Intersection> intersectMoving(const Aabb& l, Sphere r, glm::vec3 m
 std::optional<Intersection> intersectMoving(const Sphere& l, const Aabb& r, const glm::vec3& movement);
 std::optional<Intersection> intersectMoving(const Obb& l, Sphere r, const glm::vec3& movement);
 std::optional<Intersection> intersectMoving(const Sphere& l, const Obb& r, const glm::vec3& movement);
+
+//Dispatch
+bool intersect(const AnyCol& l, const AnyCol& r);
+std::optional<Intersection> intersectMoving(const AnyCol& l, const AnyCol& r, const glm::vec3& movement);
 
 #endif

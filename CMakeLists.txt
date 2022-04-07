@@ -30,6 +30,10 @@ set(PROJECT_SOURCES
 	src/Event.hpp
 	src/Geometry.h
 	src/Geometry.cpp
+	src/Collider.h
+	src/Collider.cpp
+	src/Physics.h
+	src/Physics.cpp
 )
 set(PROJECT_SHADERS
 	res/vertex_shader.glsl

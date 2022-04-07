@@ -22,6 +22,7 @@ public:
     void update(Seconds);
     void draw(const glm::mat4& v, const glm::mat4& p) const;
 private:
+    void tickOnce();
     template<std::derived_from<Component> T, typename... Args>
     T& buildComponent(Args&&... args)
     {
@@ -51,6 +52,8 @@ private:
     std::unordered_map<std::type_index, std::unique_ptr<ComponentManagerBase>> _managers;
     std::vector<std::pair<const std::type_index, std::unique_ptr<ComponentManagerBase>>> _additional_managers; //Needed to prevent rehash in the middle of the update
     bool _should_cleanup = false;
+    Seconds _tick_period = std::chrono::milliseconds{ 10 };
+    Seconds _tick_remainder{};
 };
 
 #endif
