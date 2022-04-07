@@ -33,7 +33,7 @@ public:
             if (!p.first) return true;
             p.first->*p.second(args...); //No forward as the elements may be shared by multiple functions and should not be moved
             return false;
-            }, end(_callables));
+            }, end(_callables)));
     }
 
 private:
@@ -44,8 +44,8 @@ template<typename T, typename... Args>
 struct PrivateEvent : private Event<Args...>
 {
     friend T;
-    using Event::add;
-    using Event::remove;
+    using Event<Args...>::add;
+    using Event<Args...>::remove;
 };
 
 #endif
