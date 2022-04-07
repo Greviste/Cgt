@@ -36,6 +36,12 @@ public:
             }, end(_callables)));
     }
 
+    template<typename... CallArgs>
+    void operator()(CallArgs&&... args)
+    {
+        trigger(std::forward<CallArgs>(args)...);
+    }
+
 private:
     std::vector<std::pair<WeakRef<WeakReferencable>, Fptr>> _callables;
 };
