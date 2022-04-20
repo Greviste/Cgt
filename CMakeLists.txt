@@ -28,6 +28,8 @@ set(PROJECT_SOURCES
 	src/ComponentManager.hpp
 	src/Utility.h
 	src/Event.hpp
+	src/Geometry.h
+	src/Geometry.cpp
 )
 set(PROJECT_SHADERS
 	res/vertex_shader.glsl
