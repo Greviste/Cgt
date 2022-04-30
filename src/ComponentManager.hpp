@@ -20,6 +20,7 @@ public:
     virtual ~ComponentManagerBase() = default;
     virtual void update(Seconds delta) = 0;
     virtual void draw(const glm::mat4& v, const glm::mat4& p) const = 0;
+    virtual void drawGeometry(const glm::mat4& v, const glm::mat4& p) const = 0;
     virtual void cleanup(Seconds delta) = 0;
 protected:
 };
@@ -44,8 +45,17 @@ public:
         }
     }
 
+    void drawGeometry(const glm::mat4& v, const glm::mat4& p) const override
+    {
+        if constexpr (requires (const C& c) { c.drawGeometry(v, p); })
+        {
+            for (auto& c : _components) c.drawGeometry(v, p);
+        }
+    }
+
     void cleanup(Seconds delta) override
     {
+        using std::begin, std::end;
         _components.erase(Utility::forEachRemovable(_components, [](C& c) {
             if constexpr (requires (C & c) { c.stop(); }) if (c.shouldDestroy()) c.stop();
             return c.shouldDestroy();
@@ -80,6 +90,13 @@ public:
         _new_components.emplace_front(std::forward<Args>(args)...);
         return _new_components.front();
     }
+
+    auto begin() { return _components.begin(); }
+    auto begin() const { return _components.begin(); }
+    auto cbegin() const { return _components.cbegin(); }
+    auto end() { return _components.end(); }
+    auto end() const { return _components.end(); }
+    auto cend() const { return _components.cend(); }
 private:
     std::vector<C> _components;
     std::forward_list<C> _new_components; //Needed to guarantee reference and pointer validity within a single update

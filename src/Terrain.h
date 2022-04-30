@@ -11,10 +11,12 @@ class Terrain : public DependentComponent<Transformation>
 public:
     Terrain(const EntityKey& key, Image heightmap, Image grass, Image rock, Image snow);
     void draw(const glm::mat4& v, const glm::mat4& p) const;
+    void drawGeometry(const glm::mat4& v, const glm::mat4& p) const;
     float getAltitudeOf(const glm::vec3& pos) const;
 
 private:
     void rebuildMesh();
+    static const SafeGl::Program& geometryProgram();
 
     Image _raw_heightmap;
     Image _raw_grass;

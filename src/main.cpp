@@ -19,6 +19,7 @@
 #include "Rotator.h"
 #include "Terrain.h"
 #include "SimpleMovement.h"
+#include "Light.h"
 
 template<auto D>
 struct RaiiCall
@@ -83,7 +84,8 @@ int main(void)
         glClearColor(0.8f, 0.8f, 0.8f, 0.0f);
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LESS);
-        glDisable(GL_CULL_FACE);
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_BACK);
 
         MeshData mesh;
         setUnitSphere(mesh);
@@ -101,6 +103,10 @@ int main(void)
         setUnitSphere(mesh, 3, 3);
         earth_m.addLod(mesh, 1); //total 2
         earth.buildComponent<SimpleMovement>().terrain(terrain_comp);
+
+        Entity& light = world.createEntity();
+        light.buildComponent<Transformation>(glm::vec3(0.0f, 2.0f, 3.0f), glm::vec3(-0.1,0,0));
+        light.buildComponent<Light>();
 
         auto last_tick = std::chrono::high_resolution_clock::now();
         do
@@ -121,8 +127,9 @@ int main(void)
             }
             else
             {
-                view = glm::lookAt(camera_position, camera_position + camera_target, camera_up);;
+                view = glm::lookAt(camera_position, camera_position + camera_target, camera_up);
             }
+            //view = light.findComponent<Transformation>()->invMatrix();
             glm::mat4 projection = glm::perspective(glm::radians(45.f), 4.f / 3, 0.1f, 100.f);
 
             world.draw(view, projection);

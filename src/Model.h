@@ -13,10 +13,13 @@ class Model : public DependentComponent<Transformation>
 public:
     Model(const EntityKey& key, const Image& img, const MeshData& mesh);
     void draw(const glm::mat4& v, const glm::mat4& p) const;
+    void drawGeometry(const glm::mat4& v, const glm::mat4& p) const;
     void addLod(const MeshData& data, float after_dist);
 
 private:
     const Mesh& selectLod(float sqr_dist) const;
+
+    static const SafeGl::Program& geometryProgram();
 
     Mesh _mesh;
     std::vector<std::pair<Mesh, float>> _lods;

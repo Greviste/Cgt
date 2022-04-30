@@ -28,12 +28,17 @@ set(PROJECT_SOURCES
 	src/ComponentManager.hpp
 	src/Utility.h
 	src/Event.hpp
+	src/Light.h
+	src/Light.cpp
 )
 set(PROJECT_SHADERS
 	res/vertex_shader.glsl
 	res/fragment_shader.glsl
+	res/geometry_vertex_shader.glsl
+	res/geometry_fragment_shader.glsl
 	res/terrain_vertex_shader.glsl
 	res/terrain_fragment_shader.glsl
+	res/geometry_terrain_vertex_shader.glsl
 )
 set(PROJECT_RESOURCES
 	res/heightmap-1024x1024.png

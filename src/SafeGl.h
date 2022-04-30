@@ -69,14 +69,17 @@ namespace SafeGl
         inline void deleteProgram(GLuint h) { glDeleteProgram(h); }
         inline void deleteTexture(GLuint h) { glDeleteTextures(1, &h); }
         inline void deleteVertexArray(GLuint h) { glDeleteVertexArrays(1, &h); }
+        inline void deleteFrameBuffer(GLuint h) { glDeleteFramebuffers(1, &h); }
     }
     using Buffer = SafeHandle<GLuint, impl::deleteBuffer>;
     using Shader = SafeHandle<GLuint, impl::deleteShader>;
     using Program = SafeHandle<GLuint, impl::deleteProgram>;
     using Texture = SafeHandle<GLuint, impl::deleteTexture>;
     using VertexArray = SafeHandle<GLuint, impl::deleteVertexArray>;
+    using FrameBuffer = SafeHandle<GLuint, impl::deleteFrameBuffer>;
 
     Program loadAndCompileProgram(std::filesystem::path v, std::filesystem::path f);
 }
 
 #endif
+ 

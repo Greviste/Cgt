@@ -50,10 +50,10 @@ void setUnitSphere(MeshData& o_mesh, unsigned nX, unsigned nY)
         for (unsigned iY = 0; iY < nY - 1; ++iY)
         {
             *(it++) = {vertIndex(iX, iY, nX, nY),
-                vertIndex(iX + 1, iY, nX, nY),
-                vertIndex(iX, iY + 1, nX, nY) };
-            *(it++) = { vertIndex(iX, iY + 1, nX, nY),
-                vertIndex(iX + 1, iY, nX, nY),
+                vertIndex(iX, iY + 1, nX, nY),
+                vertIndex(iX + 1, iY, nX, nY) };
+            *(it++) = { vertIndex(iX + 1, iY, nX, nY),
+                vertIndex(iX, iY + 1, nX, nY),
                 vertIndex(iX + 1, iY + 1, nX, nY) };
         }
     }

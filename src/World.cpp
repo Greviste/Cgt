@@ -1,6 +1,7 @@
 #include "World.h"
 #include "Entity.h"
 #include "Component.h"
+#include "Light.h"
 #include <algorithm>
 
 Entity& World::createEntity()
@@ -22,9 +23,34 @@ void World::update(Seconds s)
     }
 }
 
+extern GLFWwindow* window;
+
 void World::draw(const glm::mat4& v, const glm::mat4& p) const
 {
+    glm::mat4 inv_v = inverse(v);
+    _lights.clear();
+    for (const Light* light : getAll<Light>())
+    {
+        _lights.push_back(light->buildData());
+        _lights.back().pos = v * glm::vec4(_lights.back().pos, 1);
+        _lights.back().vp *= inv_v;
+    }
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    int w, h;
+    glfwGetWindowSize(window, &w, &h);
+    glViewport(0, 0, w, h);
+    glCullFace(GL_BACK);
     for (auto& elem : _managers) elem.second->draw(v, p);
+}
+
+void World::drawGeometry(const glm::mat4& v, const glm::mat4& p) const
+{
+    for (auto& elem : _managers) elem.second->drawGeometry(v, p);
+}
+
+const std::vector<LightData>& World::lightData() const
+{
+    return _lights;
 }
 
 template<typename F>
