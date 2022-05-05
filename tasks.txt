@@ -1,20 +1,11 @@
--Collisions
 -Input manager
 
--Remove Objects
-    -Essential Component -> preventDelete until counter reaches 0
-    -Or dependent component deleted along with it
-
 -Event system
+    -To test
 
 -Character
     -Life/damage system
+    
+-Physics rotations
 
 -Serialization
-
--Materials
--Lights, phong
--Shadows
-
-Date limite : 12 Mai
-
