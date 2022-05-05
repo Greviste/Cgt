@@ -12,6 +12,13 @@ Entity& World::createEntity()
 
 void World::update(Seconds s)
 {
+    _tick_remainder += s;
+    while (_tick_remainder >= _tick_period)
+    {
+        tickOnce();
+        _tick_remainder -= _tick_period;
+    }
+
     forEachManager([&s](ComponentManagerBase& m) { m.update(s); });
 
     while(_should_cleanup)
@@ -46,6 +53,11 @@ void World::draw(const glm::mat4& v, const glm::mat4& p) const
 void World::drawGeometry(const glm::mat4& v, const glm::mat4& p) const
 {
     for (auto& elem : _managers) elem.second->drawGeometry(v, p);
+}
+
+void World::tickOnce()
+{
+    forEachManager([=](ComponentManagerBase& m) { m.tick(_tick_period); });
 }
 
 const std::vector<LightData>& World::lightData() const

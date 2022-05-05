@@ -20,6 +20,7 @@
 #include "Terrain.h"
 #include "SimpleMovement.h"
 #include "Light.h"
+#include "Collider.h"
 
 template<auto D>
 struct RaiiCall
@@ -91,9 +92,24 @@ int main(void)
         setUnitSphere(mesh);
         World world;
 
+        Entity& sphere = world.createEntity();
+        sphere.buildComponent<Model>(loadImage("res/moon.jpg"), mesh);
+        sphere.getOrBuildComponent<CollisionVolume>().volume = CollisionSphere{ 0.1 };
+        sphere.getOrBuildComponent<PhysicsMovement>().velocity({ -1,0,0 });
+        sphere.getOrBuildComponent<Transformation>().scale({ 0.1,0.1,0.1 });
+        sphere.getOrBuildComponent<Transformation>().translation({ 1,2,0 });
+
+        Entity& sphere2 = world.createEntity();
+        sphere2.buildComponent<Model>(loadImage("res/moon.jpg"), mesh);
+        sphere2.getOrBuildComponent<CollisionVolume>().volume = CollisionSphere{ 0.1 };
+        sphere2.getOrBuildComponent<PhysicsMovement>();
+        sphere2.getOrBuildComponent<Transformation>().scale({ 0.1,0.1,0.1 });
+        sphere2.getOrBuildComponent<Transformation>().translation({ 0,1.12,0 });
+
         Entity& terrain = world.createEntity();
         Terrain& terrain_comp = terrain.buildComponent<Terrain>(loadImage("res/Heightmap_Rocky.png"), loadImage("res/grass.png"), loadImage("res/rock.png"), loadImage("res/snowrocks.png"));
         terrain.getOrBuildComponent<Transformation>().scale({5,1,5});
+        terrain.getOrBuildComponent<CollisionVolume>().volume = CollisionBox{ { 5, 1, 5 } };
 
         Entity& earth = world.createEntity();
         earth.getOrBuildComponent<Transformation>().scale({ 0.05, 0.05, 0.05 });

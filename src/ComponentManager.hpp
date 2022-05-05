@@ -19,6 +19,7 @@ class ComponentManagerBase
 public:
     virtual ~ComponentManagerBase() = default;
     virtual void update(Seconds delta) = 0;
+    virtual void tick(Seconds delta) = 0;
     virtual void draw(const glm::mat4& v, const glm::mat4& p) const = 0;
     virtual void drawGeometry(const glm::mat4& v, const glm::mat4& p) const = 0;
     virtual void cleanup(Seconds delta) = 0;
@@ -34,6 +35,14 @@ public:
         if constexpr (requires (C& c) { c.update(delta); })
         {
             for (auto& c : _components) if (!c.shouldDestroy()) c.update(delta);
+        }
+    }
+
+    void tick(const Seconds delta) override
+    {
+        if constexpr (requires (C& c) { c.tick(delta); })
+        {
+            for (auto& c : _components) if (!c.shouldDestroy()) c.tick(delta);
         }
     }
 
@@ -57,14 +66,14 @@ public:
     {
         using std::begin, std::end;
         _components.erase(Utility::forEachRemovable(_components, [](C& c) {
-            if constexpr (requires (C & c) { c.stop(); }) if (c.shouldDestroy()) c.stop();
+            if constexpr (requires (C& c) { c.stop(); }) if (c.shouldDestroy()) c.stop();
             return c.shouldDestroy();
         }), end(_components));
 
         auto list = std::move(_new_components);
         for (C& c : list)
         {
-            if constexpr (requires (C & c) { c.start(); })
+            if constexpr (requires (C& c) { c.start(); })
             {
                 c.start();
             }

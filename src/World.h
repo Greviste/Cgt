@@ -46,6 +46,7 @@ public:
     const std::vector<LightData>& lightData() const;
 
 private:
+    void tickOnce();
     template<typename T>
     std::vector<T*> doGetAll() const
     {
@@ -96,6 +97,8 @@ private:
     std::unordered_map<std::type_index, std::unique_ptr<ComponentManagerBase>> _managers;
     std::vector<std::pair<const std::type_index, std::unique_ptr<ComponentManagerBase>>> _additional_managers; //Needed to prevent rehash in the middle of the update
     bool _should_cleanup = false;
+    Seconds _tick_period = std::chrono::milliseconds{ 10 };
+    Seconds _tick_remainder{};
 
     mutable std::vector<LightData> _lights;
 };

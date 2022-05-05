@@ -49,6 +49,10 @@ struct WeakRef
     template<typename U> friend struct WeakRef;
 private:
     std::shared_ptr<const WeakReferencable*> _ptr;
+    T* uncheckedPtr() const noexcept
+    {
+        return const_cast<T*>(static_cast<const T*>(*_ptr));
+    }
 public:
     WeakRef(std::nullptr_t = nullptr) {};
     WeakRef(T* ptr) : _ptr(ptr? ptr->getSelfPtr() : nullptr) {};
@@ -68,6 +72,7 @@ public:
     {
         swap(_ptr, other._ptr);
     }
+
     WeakRef& operator=(const WeakRef& other) = default;
     WeakRef& operator=(WeakRef&& other) noexcept
     {
@@ -79,22 +84,27 @@ public:
     //Returns nullptr if invalid. The other accessors lead to undefined behaviour when invalid
     T* ptr() const noexcept
     {
-        return _ptr? const_cast<T*>(static_cast<const T*>(*_ptr)) : nullptr;
+        return _ptr? uncheckedPtr() : nullptr;
     }
 
-    T* operator->() const noexcept
+    operator T*() const noexcept
     {
         return ptr();
     }
 
-    T& operator*() const noexcept
+    T* operator->() const noexcept
     {
-        return *ptr();
+        return uncheckedPtr();
     }
 
     T& get() const noexcept
     {
-        return *ptr();
+        return *uncheckedPtr();
+    }
+
+    T& operator*() const noexcept
+    {
+        return get();
     }
 
     explicit operator bool() const noexcept
@@ -103,8 +113,8 @@ public:
     }
 
     friend bool operator==(const WeakRef& l, const WeakRef& r) = default;
-    friend bool operator==(const WeakRef& l, const WeakReferencable* r) { return l.ptr() == r; }
-    friend bool operator==(const WeakReferencable* l, const WeakRef& r) { return r == l; }
+    template<typename P>
+    friend bool operator==(const WeakRef& l, P* r) { return l.ptr() == r; }
 };
 
 #endif
