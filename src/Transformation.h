@@ -15,14 +15,14 @@ using Matrix = glm::mat4;
 class Transformation : public Component
 {
 public:
-    Transformation(const EntityKey& key, Vector translation = { 0,0,0 }, Vector euler_rotation = { 0,0,0 }, Vector scale = { 1,1,1 });
+    Transformation(const EntityKey& key, Vector translation = { 0,0,0 }, Quaternion rotation = { 1, 0, 0, 0 }, Vector scale = { 1,1,1 });
     void stop();
 
     Vector translation() const;
     void translation(Vector v);
 
-    Vector rotation() const;
-    void rotation(Vector v);
+    Quaternion rotation() const;
+    void rotation(Quaternion v);
 
     Vector scale() const;
     void scale(Vector v);

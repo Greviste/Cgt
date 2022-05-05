@@ -3,8 +3,8 @@
 #include <cassert>
 #include <glm/gtc/matrix_transform.hpp>
 
-Transformation::Transformation(const EntityKey& key, Vector translation, Vector euler_rotation, Vector scale)
-    : Component(key), _translation(std::move(translation)), _rotation(std::move(euler_rotation)), _scale(std::move(scale))
+Transformation::Transformation(const EntityKey& key, Vector translation, Quaternion rotation, Vector scale)
+    : Component(key), _translation(std::move(translation)), _rotation(std::move(rotation)), _scale(std::move(scale))
 {
 }
 
@@ -25,14 +25,14 @@ void Transformation::translation(Vector v)
     markDirty();
 }
 
-Vector Transformation::rotation() const
+Quaternion Transformation::rotation() const
 {
-    return eulerAngles(_rotation);
+    return _rotation;
 }
 
-void Transformation::rotation(Vector v)
+void Transformation::rotation(Quaternion v)
 {
-    _rotation = Quaternion(v);
+    _rotation = normalize(v);
     markDirty();
 }
 
@@ -62,7 +62,7 @@ Matrix Transformation::invMatrix() const
 {
     if (!_inv_matrix)
     {
-        _inv_matrix = translate(glm::scale(glm::mat4(1.0f), 1.f/_scale) * mat4_cast(inverse(_rotation)), -_translation);
+        _inv_matrix = translate(glm::scale(glm::mat4(1.0f), 1.f/_scale) * mat4_cast(conjugate(_rotation)), -_translation);
         if (_parent) *_inv_matrix *= _parent->invMatrix();
     }
 
@@ -84,6 +84,11 @@ void Transformation::removeChild(Transformation& c)
 }
 
 const Transformation* Transformation::parent() const
+{
+    return _parent.ptr();
+}
+
+Transformation* Transformation::parent()
 {
     return _parent.ptr();
 }
