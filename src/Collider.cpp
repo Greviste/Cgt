@@ -41,8 +41,6 @@ void PhysicsMovement::stop()
 
 void PhysicsMovement::tick(Seconds delta)
 {
-    static int tickid = 0;
-    ++tickid;
     glm::vec3 forces = gravity * mass - drag * _velocity;
     _velocity += forces / mass * delta.count();
     _angular_velocity *= 1 - angular_drag;
