@@ -41,29 +41,36 @@ Physics& Physics::instance()
     return p;
 }
 
-std::optional<SweepResult> Physics::sweep(const AnyCol& col, const glm::vec3& movement) const
+std::optional<SweepResult> Physics::sweep(const CollisionVolume& col, const glm::vec3& movement) const
+{
+    return sweep(col.buildCollisions(), movement, { &col });
+}
+
+std::optional<SweepResult> Physics::sweep(const AnyCol& col, const glm::vec3& movement, const std::vector<const CollisionVolume*>& to_ignore) const
 {
     std::optional<SweepResult> result;
     float lowest_t = 2;
-    for (auto& cv : _statics)
+    for (auto& e : _statics)
     {
-        if (auto inter = intersectMoving(cv->buildCollisions(), col, movement))
+        if (std::any_of(to_ignore.begin(), to_ignore.end(), [&e](auto ptr) { return ptr == &getCv(e); })) continue;
+        if (auto inter = intersectMoving(e->buildCollisions(), col, movement))
         {
             if (inter->t < lowest_t)
             {
                 lowest_t = inter->t;
-                result = SweepResult{ *inter, cv.ptr(), nullptr };
+                result = SweepResult{ *inter, e.ptr(), nullptr };
             }
         }
     }
-    for (auto& di : _dynamics)
+    for (auto& e : _dynamics)
     {
-        if (auto inter = intersectMoving(di.first->buildCollisions(), col, movement))
+        if (std::any_of(to_ignore.begin(), to_ignore.end(), [&e](auto ptr) { return ptr == &getCv(e); })) continue;
+        if (auto inter = intersectMoving(e.first->buildCollisions(), col, movement))
         {
             if (inter->t < lowest_t)
             {
                 lowest_t = inter->t;
-                result = SweepResult{ *inter, di.first.ptr(), di.second.ptr() };
+                result = SweepResult{ *inter, e.first.ptr(), e.second.ptr() };
             }
         }
     }

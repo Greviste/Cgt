@@ -1,5 +1,6 @@
 #include "Collider.h"
 #include "Physics.h"
+#include <glm/gtx/norm.hpp>
 
 void CollisionVolume::start()
 {
@@ -41,13 +42,14 @@ void PhysicsMovement::stop()
 
 void PhysicsMovement::tick(Seconds delta)
 {
+    Transformation& t = get<Transformation>();
+
     glm::vec3 forces = gravity * mass - drag * _velocity;
     _velocity += forces / mass * delta.count();
     _angular_velocity *= 1 - angular_drag;
 
     glm::vec3 movement = _velocity * delta.count();
-    Transformation& t = get<Transformation>();
-    while (auto result = Physics::instance().sweep(get<CollisionVolume>().buildCollisions(), movement))
+    while (auto result = Physics::instance().sweep(get<CollisionVolume>(), movement))
     {
         t.translation(t.translation() + movement * result->t + result->normal * TinyLength);
         handleBounce(*result, result->other_physics);

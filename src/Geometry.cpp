@@ -241,6 +241,11 @@ bool intersect(const Obb& l, const Obb& r)
 
 std::optional<Intersection> intersectMoving(const Sphere& l, const Sphere& r, glm::vec3 movement)
 {
+    if (intersect(l, r))
+    {
+        glm::vec3 dir = normalize(r.center - l.center);
+        return Intersection{ l.center + dir * l.radius, dir, 0 };
+    }
     float radius = l.radius + r.radius;
     float d = dot(r.center - l.center, movement);
     float v2 = length2(movement);
