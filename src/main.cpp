@@ -99,16 +99,18 @@ int main(void)
         cube.getOrBuildComponent<PhysicsMovement>().velocity({ -1,0,0 });
         cube.getOrBuildComponent<Transformation>().scale({ 0.1,0.1,0.1 });
         cube.getOrBuildComponent<Transformation>().translation({ 1,2,0 });
+        cube.getOrBuildComponent<Transformation>().rotation(glm::vec3{ 0.1,1.12,0.5 });
 
         Entity& sphere = world.createEntity();
         sphere.buildComponent<Model>(loadImage("res/moon.jpg"), mesh);
         sphere.getOrBuildComponent<CollisionVolume>().volume = CollisionSphere{ 0.1 };
         sphere.getOrBuildComponent<PhysicsMovement>();
         sphere.getOrBuildComponent<Transformation>().scale({ 0.1,0.1,0.1 });
-        sphere.getOrBuildComponent<Transformation>().translation({ 0.1,1.12,0 });
+        sphere.getOrBuildComponent<Transformation>().translation({ -1,1.12,0.05 });
 
         Entity& terrain = world.createEntity();
-        Terrain& terrain_comp = terrain.buildComponent<Terrain>(loadImage("res/Heightmap_Rocky.png"), loadImage("res/grass.png"), loadImage("res/rock.png"), loadImage("res/snowrocks.png"));
+        //Terrain& terrain_comp = terrain.buildComponent<Terrain>(loadImage("res/Heightmap_Rocky.png"), loadImage("res/grass.png"), loadImage("res/rock.png"), loadImage("res/snowrocks.png"));
+        terrain.buildComponent<Model>(loadImage("res/grass.png"), cube_mesh);
         terrain.getOrBuildComponent<Transformation>().scale({5,1,5});
         terrain.getOrBuildComponent<CollisionVolume>().volume = CollisionBox{ { 5, 1, 5 } };
 
@@ -119,7 +121,7 @@ int main(void)
         earth_m.addLod(mesh, 1);
         setUnitSphere(mesh, 3, 3);
         earth_m.addLod(mesh, 1); //total 2
-        earth.buildComponent<SimpleMovement>().terrain(terrain_comp);
+        //earth.buildComponent<SimpleMovement>().terrain(terrain_comp);
 
         Entity& light = world.createEntity();
         light.buildComponent<Transformation>(glm::vec3(0.0f, 5.0f, 10.0f), glm::vec3(-0.1,0,0));

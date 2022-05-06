@@ -302,7 +302,7 @@ std::optional<Intersection> intersectMoving(const Aabb& l, const Aabb& r, glm::v
 
 std::optional<Intersection> intersectMoving(const Obb& l, const Obb& r, glm::vec3 movement)
 {
-    using std::min, std::max, std::minmax;
+    using std::min, std::max, std::minmax, std::abs;
 
     const Obb* boxes[2] = { &l, &r };
 
@@ -325,7 +325,9 @@ std::optional<Intersection> intersectMoving(const Obb& l, const Obb& r, glm::vec
     {
         for (int j = 0; j < 3; ++j)
         {
-            normals[6 + i * 3 + j] = cross(axis[0][i], axis[1][j]);
+            auto& n = normals[6 + i * 3 + j];
+            n = cross(axis[0][i], axis[1][j]);
+            if (length2(n) > 0) n = normalize(n);
         }
     }
 
@@ -342,7 +344,7 @@ std::optional<Intersection> intersectMoving(const Obb& l, const Obb& r, glm::vec
         }
     }
 
-    float t_min = 0, t_max = 1;
+    float t_min = -std::numeric_limits<float>::infinity(), t_max = 1;
     int latest_axis = 0;
     float direction = 1;
     for (int n = 0; n < 15; ++n)
@@ -369,15 +371,40 @@ std::optional<Intersection> intersectMoving(const Obb& l, const Obb& r, glm::vec
         if (v == 0)
         {
             if (maxs[0] < mins[1] || mins[0] > maxs[1]) return std::nullopt;
+            if (t_min < mins[1] - maxs[0])
+            {
+                t_min = mins[1] - maxs[0];
+                latest_axis = n;
+                direction = 1;
+            }
+            if (t_min < mins[0] - maxs[1])
+            {
+                t_min = mins[0] - maxs[1];
+                latest_axis = n;
+                direction = -1;
+            }
             continue;
         }
 
         auto [mi, ma] = minmax((maxs[0] - mins[1]) / v, (mins[0] - maxs[1]) / v);
-        if (mi > t_min)
+        if (mi < 0)
         {
-            t_min = mi;
-            latest_axis = n;
-            direction = v < 0 ? 1 : -1;
+            float dist = min(abs(mi), abs(ma)) * abs(v);
+            if (-dist > t_min)
+            {
+                t_min = -dist;
+                latest_axis = n;
+                direction = maxs[0] - mins[1] < maxs[1] - mins[0] ? 1 : -1;
+            }
+        }
+        else
+        {
+            if (mi > t_min)
+            {
+                t_min = mi;
+                latest_axis = n;
+                direction = v < 0 ? 1 : -1;
+            }
         }
         t_max = min(t_max, ma);
 
@@ -405,6 +432,7 @@ std::optional<Intersection> intersectMoving(const Obb& l, const Obb& r, glm::vec
         }
         if (maxs[0] < mins[1] || mins[0] > maxs[1]) return std::nullopt;
     }
+    t_min = max(0.f, t_min);
 
     glm::vec3 r_center = r.center + movement * t_min;
     glm::vec3 offset = r_center - l.center;
@@ -649,6 +677,30 @@ std::optional<Intersection> intersectMoving(const Sphere& l, const Obb& r, const
     return swapAndIntersect(l, r, movement);
 }
 
+Sphere growBy(Sphere x, float by)
+{
+    x.radius += by;
+    return x;
+}
+
+Aabb growBy(Aabb x, float by)
+{
+    for (int a = 0; a < 3; ++a)
+    {
+        x.extents[a] += by;
+    }
+    return x;
+}
+
+Obb growBy(Obb x, float by)
+{
+    for (int a = 0; a < 3; ++a)
+    {
+        x.extents[a] += by;
+    }
+    return x;
+}
+
 bool intersect(const AnyCol& l, const AnyCol& r)
 {
     return std::visit([](const auto& l, const auto& r) {return intersect(l, r); }, l, r);
@@ -657,4 +709,9 @@ bool intersect(const AnyCol& l, const AnyCol& r)
 std::optional<Intersection> intersectMoving(const AnyCol& l, const AnyCol& r, const glm::vec3& movement)
 {
     return std::visit([&](const auto& l, const auto& r) {return intersectMoving(l, r, movement); }, l, r);
+}
+
+AnyCol growBy(AnyCol x, float by)
+{
+    return std::visit<AnyCol>([&](const auto& x) { return growBy(x, by); }, x);
 }

@@ -1,6 +1,7 @@
 #include "Physics.h"
 #include "Collider.h"
 #include <iterator>
+#include <glm/gtx/norm.hpp>
 
 namespace
 {

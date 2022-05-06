@@ -77,8 +77,13 @@ std::optional<Intersection> intersectMoving(const Sphere& l, const Aabb& r, cons
 std::optional<Intersection> intersectMoving(const Obb& l, Sphere r, const glm::vec3& movement);
 std::optional<Intersection> intersectMoving(const Sphere& l, const Obb& r, const glm::vec3& movement);
 
+Sphere growBy(Sphere x, float by);
+Aabb growBy(Aabb x, float by);
+Obb growBy(Obb x, float by);
+
 //Dispatch
 bool intersect(const AnyCol& l, const AnyCol& r);
 std::optional<Intersection> intersectMoving(const AnyCol& l, const AnyCol& r, const glm::vec3& movement);
+AnyCol growBy(AnyCol x, float by);
 
 #endif

@@ -51,15 +51,16 @@ public:
         : Component(key), _dependencies{ owner().getOrBuildComponent<Comps>()... }
     {
     }
-protected:
-    DependentComponent(DependentComponent&&) = default;
-    DependentComponent& operator=(DependentComponent&&) = default;
 
     template<oneOf<Comps...> T>
     T& get() const
     {
         return *std::get<DependentRef<T>>(_dependencies)._ref;
     }
+
+protected:
+    DependentComponent(DependentComponent&&) = default;
+    DependentComponent& operator=(DependentComponent&&) = default;
     ~DependentComponent() = default;
 
 private:

@@ -42,34 +42,63 @@ void PhysicsMovement::stop()
 
 void PhysicsMovement::tick(Seconds delta)
 {
-    using std::cos, std::sin;
+    using std::cos, std::sin, std::abs;
     Transformation& t = get<Transformation>();
     CollisionVolume& cv = get<CollisionVolume>();
 
     glm::vec3 forces = gravity * mass - drag * _velocity;
-    _velocity += forces / mass * delta.count();
-    _angular_velocity *= 1 - angular_drag;
 
     if (length2(_angular_velocity) > 0)
     {
+        _angular_velocity *= 1 - angular_drag;
         glm::vec3 rotation_vector = _angular_velocity * delta.count();
         float rotation_length = length(rotation_vector);
         glm::quat rotation{ cos(rotation_length / 2), rotation_vector / rotation_length * sin(rotation_length / 2) };
         glm::quat old_rot = t.rotation();
         t.rotation(rotation * old_rot);
-        if (Physics::instance().overlap(cv.buildCollisions()).size() > 1) //1 for self overlap
+        for (auto* other_cv : Physics::instance().overlap(cv.buildCollisions()))
         {
+            if (other_cv == &cv) continue;
             t.rotation(old_rot);
+            _angular_velocity = glm::vec3{};
+            break;
+        }
+    }
+    auto col = cv.buildCollisions();
+    for (auto* other_cv : Physics::instance().overlap(growBy(col, TinyLength * 5)))
+    {
+        if (other_cv == &cv) continue;
+        if (auto result = intersectMoving(other_cv->buildCollisions(), col, other_cv->get<Transformation>().translation() - t.translation()))
+        {
+            glm::vec3 normal_force = -dot(forces, result->normal) * result->normal;
+            forces += normal_force;
+            glm::vec3 bitangent = cross(normal_force, _velocity);
+            glm::vec3 tangent_force{};
+            if (length2(bitangent) > 0)
+            {
+                tangent_force = -0.1f * cross(normalize(bitangent), normal_force);
+                if (dot(_velocity + forces * delta.count(), _velocity + (forces + tangent_force) * delta.count()) < 0) _velocity = glm::vec3{};
+                else forces += tangent_force;
+            }
+            glm::vec3 r = result->contact - t.translation();
+            _angular_velocity += cross(r, normal_force + tangent_force) * delta.count();
         }
     }
 
-
+    _velocity += forces / mass * delta.count();
     glm::vec3 movement = _velocity * delta.count();
     while (auto result = Physics::instance().sweep(cv, movement))
     {
-        t.translation(t.translation() + movement * result->t + result->normal * TinyLength);
+        t.translation(t.translation() + movement * result->t);
+        glm::vec3 other_pos = result->other->get<Transformation>().translation();
+        auto other_col = result->other->buildCollisions();
+        do
+        {
+            auto bf = t.translation();
+            t.translation(t.translation() + result->normal * sign(dot(t.translation() - other_pos, result->normal)) * TinyLength);
+        } while (intersect(cv.buildCollisions(), other_col));
+
         handleBounce(*result, result->other_physics);
-        if (result->other_physics) result->other_physics->handleBounce(*result, this);
         delta *= 1 - result->t;
         movement = _velocity * delta.count();
     }
@@ -88,13 +117,31 @@ void PhysicsMovement::velocity(glm::vec3 v)
 
 void PhysicsMovement::handleBounce(const Intersection& intersection, PhysicsMovement* other)
 {
-    float denom = 1 / mass;
-    if (other) denom += 1 / other->mass;
+    auto [diff, angular_diff] = calcBounceDiff(intersection, other);
+    if (other)
+    {
+        auto [odiff, oangular_diff] = other->calcBounceDiff(intersection, this);
+        other->_velocity += odiff;
+        other->_angular_velocity += _angular_velocity;
+    }
+    _velocity += diff;
+    _angular_velocity += angular_diff;
+}
+
+std::pair<glm::vec3, glm::vec3> PhysicsMovement::calcBounceDiff(const Intersection& intersection, PhysicsMovement* other) const
+{
+    glm::vec3 r = intersection.contact - get<Transformation>().translation();
+    float denom = (1 + dot(intersection.normal, cross(cross(r, intersection.normal), r))) / mass;
     glm::vec3 v = _velocity;
-    if (other) v -= other->_velocity;
+    if (other)
+    {
+        glm::vec3 rb = intersection.contact - other->get<Transformation>().translation();
+        denom += (1 + dot(intersection.normal, cross(cross(rb, intersection.normal), rb))) / other->mass;
+        v -= other->_velocity;
+    }
 
     denom *= mass;
-    glm::vec3 diff = (1 + cr) * dot(v, intersection.normal) / denom * intersection.normal;
-    _angular_velocity -= cross(intersection.contact - get<Transformation>().translation(), diff);
-    _velocity -= diff;
+    glm::vec3 diff = -(1 + cr) * dot(v, intersection.normal) / denom * intersection.normal;
+
+    return { diff, cross(r, diff) };
 }

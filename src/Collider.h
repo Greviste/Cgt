@@ -46,11 +46,12 @@ public:
 
     glm::vec3 gravity{ 0, -9.81f, 0 };
     float cr = 0.8f;
-    float drag = 0.01f;
+    float drag = 0.1f;
     float angular_drag = 0.01f;
     float mass = 10.f;
 private:
     void handleBounce(const Intersection& intersection, PhysicsMovement* other);
+    std::pair<glm::vec3, glm::vec3> calcBounceDiff(const Intersection& intersection, PhysicsMovement* other) const;
     glm::vec3 _velocity{};
     glm::vec3 _angular_velocity{};
 };
