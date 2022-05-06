@@ -35,6 +35,10 @@ void main()
         texture(heightmap, uv + vec2(0, step)).r - texture(heightmap, uv - vec2(0, step)).r);
     vec3 n = normalize((nmat * vec4(-derivatives.x, 2 * step, -derivatives.y, 1)).xyz);
 
+    vec3 tangent = n.y == 1.f ? vec3(1, 0, 0) : vec3(0, 1, 0);
+    vec3 bitangent = normalize(cross(n, tangent));
+    tangent = cross(bitangent, n);
+
     vec3 wo = normalize(-pos); // unit vector pointing to the camera
     vec3 irradiance = vec3(0, 0, 0);
 
@@ -42,11 +46,20 @@ void main()
     {
         if (lights[i].isActive == 1)
         {
-            vec4 shadowPos = lights[i].vp * vec4(pos, 1);
-            vec3 shadowCoords = (shadowPos.xyz / shadowPos.w + 1.) * 0.5;
+            float influence = 0;
+            float influencePerSample = 1.f / 16;
+            for (int xi = 0; xi < 4; ++xi)
+            {
+                for (int yi = 0; yi < 4; ++yi)
+                {
+                    vec3 offsetPos = pos + ((xi - 1.5) * tangent + (yi - 1.5) * bitangent) * 0.01;
+                    vec4 shadowPos = lights[i].vp * vec4(offsetPos, 1);
+                    vec3 shadowCoords = (shadowPos.xyz / shadowPos.w + 1.) * 0.5;
 
-            float influence = shadowCoords.x < 0 || shadowCoords.x > 1 || shadowCoords.y < 0 || shadowCoords.y > 1 ? 0. :
-                (texture(lights[i].shadowMap, shadowCoords.xy).x + 0.001 >= shadowCoords.z ? 1. : 0.);
+                    influence += shadowCoords.x < 0 || shadowCoords.x > 1 || shadowCoords.y < 0 || shadowCoords.y > 1 ? 0. :
+                        (texture(lights[i].shadowMap, shadowCoords.xy).x > shadowCoords.z ? influencePerSample : 0.);
+                }
+            }
 
             vec3 toLight = lights[i].pos - pos;
             float dist2 = dot(toLight, toLight);
