@@ -42,14 +42,30 @@ void PhysicsMovement::stop()
 
 void PhysicsMovement::tick(Seconds delta)
 {
+    using std::cos, std::sin;
     Transformation& t = get<Transformation>();
+    CollisionVolume& cv = get<CollisionVolume>();
 
     glm::vec3 forces = gravity * mass - drag * _velocity;
     _velocity += forces / mass * delta.count();
     _angular_velocity *= 1 - angular_drag;
 
+    if (length2(_angular_velocity) > 0)
+    {
+        glm::vec3 rotation_vector = _angular_velocity * delta.count();
+        float rotation_length = length(rotation_vector);
+        glm::quat rotation{ cos(rotation_length / 2), rotation_vector / rotation_length * sin(rotation_length / 2) };
+        glm::quat old_rot = t.rotation();
+        t.rotation(rotation * old_rot);
+        if (Physics::instance().overlap(cv.buildCollisions()).size() > 1) //1 for self overlap
+        {
+            t.rotation(old_rot);
+        }
+    }
+
+
     glm::vec3 movement = _velocity * delta.count();
-    while (auto result = Physics::instance().sweep(get<CollisionVolume>(), movement))
+    while (auto result = Physics::instance().sweep(cv, movement))
     {
         t.translation(t.translation() + movement * result->t + result->normal * TinyLength);
         handleBounce(*result, result->other_physics);
@@ -78,5 +94,7 @@ void PhysicsMovement::handleBounce(const Intersection& intersection, PhysicsMove
     if (other) v -= other->_velocity;
 
     denom *= mass;
-    _velocity -= (1 + cr) * dot(v, intersection.normal) / denom * intersection.normal;
+    glm::vec3 diff = (1 + cr) * dot(v, intersection.normal) / denom * intersection.normal;
+    _angular_velocity -= cross(intersection.contact - get<Transformation>().translation(), diff);
+    _velocity -= diff;
 }

@@ -44,6 +44,7 @@ private:
 };
 
 void setUnitSphere(MeshData& o_mesh, unsigned nX = 20, unsigned nY = 20);
+void setUnitCube(MeshData& o_mesh);
 glm::vec4 sampleImage(const Image& img, float u, float v);
 SafeGl::Texture toTexture(const Image& img);
 

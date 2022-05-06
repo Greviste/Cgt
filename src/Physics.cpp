@@ -41,6 +41,27 @@ Physics& Physics::instance()
     return p;
 }
 
+std::vector<CollisionVolume*> Physics::overlap(const AnyCol& col) const
+{
+    std::vector<CollisionVolume*> result;
+    for (auto& e : _statics)
+    {
+        if (auto inter = intersect(e->buildCollisions(), col))
+        {
+            result.push_back(&getCv(e));
+        }
+    }
+    for (auto& e : _dynamics)
+    {
+        if (auto inter = intersect(e.first->buildCollisions(), col))
+        {
+            result.push_back(&getCv(e));
+        }
+    }
+
+    return result;
+}
+
 std::optional<SweepResult> Physics::sweep(const CollisionVolume& col, const glm::vec3& movement) const
 {
     return sweep(col.buildCollisions(), movement, { &col });

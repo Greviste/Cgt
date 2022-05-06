@@ -49,12 +49,44 @@ void setUnitSphere(MeshData& o_mesh, unsigned nX, unsigned nY)
     {
         for (unsigned iY = 0; iY < nY - 1; ++iY)
         {
-            *(it++) = {vertIndex(iX, iY, nX, nY),
+            *(it++) = { vertIndex(iX, iY, nX, nY),
                 vertIndex(iX, iY + 1, nX, nY),
                 vertIndex(iX + 1, iY, nX, nY) };
             *(it++) = { vertIndex(iX + 1, iY, nX, nY),
                 vertIndex(iX, iY + 1, nX, nY),
                 vertIndex(iX + 1, iY + 1, nX, nY) };
+        }
+    }
+}
+
+void setUnitCube(MeshData& o_mesh)
+{
+    o_mesh.vertices.resize(24);
+    o_mesh.normals.resize(24);
+    o_mesh.uvs.resize(24);
+    o_mesh.triangles.resize(16);
+    for (unsigned a = 0; a < 3; ++a)
+    {
+        unsigned a1 = (a + 1) % 3;
+        unsigned a2 = (a + 2) % 3;
+        for (unsigned s = 0; s < 2; ++s)
+        {
+            unsigned face_index = a * 8 + s * 4;
+            int dir = s * 2 - 1;
+            glm::vec3 normal{};
+            normal[a] = dir;
+            for (unsigned v = 0; v < 4; ++v)
+            {
+                unsigned index = face_index + v;
+                glm::vec3 vertex = normal;
+                vertex[a1] = v & 1 ? 1 : -1;
+                vertex[a2] = v & 2 ? 1 : -1;
+                o_mesh.vertices[index] = vertex;
+                o_mesh.normals[index] = normal;
+                o_mesh.uvs[index] = glm::vec2{ vertex[a1] + 1, vertex[a2] + 1 } / 2.f;
+            }
+            o_mesh.triangles[a * 4 + s * 2] = { face_index + 1 - s, face_index + s, face_index + 2 };
+            o_mesh.triangles[a * 4 + s * 2 + 1] = { face_index + 1 + s, face_index + 2 - s, face_index + 3 };
         }
     }
 }

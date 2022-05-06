@@ -88,23 +88,24 @@ int main(void)
         glEnable(GL_CULL_FACE);
         glCullFace(GL_BACK);
 
-        MeshData mesh;
+        MeshData mesh, cube_mesh;
         setUnitSphere(mesh);
+        setUnitCube(cube_mesh);
         World world;
+
+        Entity& cube = world.createEntity();
+        cube.buildComponent<Model>(loadImage("res/moon.jpg"), cube_mesh);
+        cube.getOrBuildComponent<CollisionVolume>().volume = CollisionBox{ glm::vec3{ 0.1, 0.1, 0.1 } };
+        cube.getOrBuildComponent<PhysicsMovement>().velocity({ -1,0,0 });
+        cube.getOrBuildComponent<Transformation>().scale({ 0.1,0.1,0.1 });
+        cube.getOrBuildComponent<Transformation>().translation({ 1,2,0 });
 
         Entity& sphere = world.createEntity();
         sphere.buildComponent<Model>(loadImage("res/moon.jpg"), mesh);
         sphere.getOrBuildComponent<CollisionVolume>().volume = CollisionSphere{ 0.1 };
-        sphere.getOrBuildComponent<PhysicsMovement>().velocity({ -1,0,0 });
+        sphere.getOrBuildComponent<PhysicsMovement>();
         sphere.getOrBuildComponent<Transformation>().scale({ 0.1,0.1,0.1 });
-        sphere.getOrBuildComponent<Transformation>().translation({ 1,2,0 });
-
-        Entity& sphere2 = world.createEntity();
-        sphere2.buildComponent<Model>(loadImage("res/moon.jpg"), mesh);
-        sphere2.getOrBuildComponent<CollisionVolume>().volume = CollisionSphere{ 0.1 };
-        sphere2.getOrBuildComponent<PhysicsMovement>();
-        sphere2.getOrBuildComponent<Transformation>().scale({ 0.1,0.1,0.1 });
-        sphere2.getOrBuildComponent<Transformation>().translation({ 0,1.12,0 });
+        sphere.getOrBuildComponent<Transformation>().translation({ 0.1,1.12,0 });
 
         Entity& terrain = world.createEntity();
         Terrain& terrain_comp = terrain.buildComponent<Terrain>(loadImage("res/Heightmap_Rocky.png"), loadImage("res/grass.png"), loadImage("res/rock.png"), loadImage("res/snowrocks.png"));
@@ -121,7 +122,7 @@ int main(void)
         earth.buildComponent<SimpleMovement>().terrain(terrain_comp);
 
         Entity& light = world.createEntity();
-        light.buildComponent<Transformation>(glm::vec3(0.0f, 2.0f, 3.0f), glm::vec3(-0.1,0,0));
+        light.buildComponent<Transformation>(glm::vec3(0.0f, 5.0f, 10.0f), glm::vec3(-0.1,0,0));
         light.buildComponent<Light>();
 
         auto last_tick = std::chrono::high_resolution_clock::now();
