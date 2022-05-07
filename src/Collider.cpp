@@ -48,22 +48,6 @@ void PhysicsMovement::tick(Seconds delta)
 
     glm::vec3 forces = gravity * mass - drag * _velocity;
 
-    if (length2(_angular_velocity) > 0)
-    {
-        _angular_velocity *= 1 - angular_drag;
-        glm::vec3 rotation_vector = _angular_velocity * delta.count();
-        float rotation_length = length(rotation_vector);
-        glm::quat rotation{ cos(rotation_length / 2), rotation_vector / rotation_length * sin(rotation_length / 2) };
-        glm::quat old_rot = t.rotation();
-        t.rotation(rotation * old_rot);
-        for (auto* other_cv : Physics::instance().overlap(cv.buildCollisions()))
-        {
-            if (other_cv == &cv) continue;
-            t.rotation(old_rot);
-            _angular_velocity = glm::vec3{};
-            break;
-        }
-    }
     auto col = cv.buildCollisions();
     for (auto* other_cv : Physics::instance().overlap(growBy(col, TinyLength * 5)))
     {
@@ -77,14 +61,14 @@ void PhysicsMovement::tick(Seconds delta)
             if (length2(bitangent) > 0)
             {
                 tangent_force = -0.1f * cross(normalize(bitangent), normal_force);
-                if (dot(_velocity + forces * delta.count(), _velocity + (forces + tangent_force) * delta.count()) < 0) _velocity = glm::vec3{};
-                else forces += tangent_force;
+                forces += tangent_force;
             }
             glm::vec3 r = result->contact - t.translation();
             _angular_velocity += cross(r, normal_force + tangent_force) * delta.count();
         }
     }
 
+    glm::vec3 origin = t.translation();
     _velocity += forces / mass * delta.count();
     glm::vec3 movement = _velocity * delta.count();
     while (auto result = Physics::instance().sweep(cv, movement))
@@ -103,6 +87,53 @@ void PhysicsMovement::tick(Seconds delta)
         movement = _velocity * delta.count();
     }
     t.translation(t.translation() + movement);
+    glm::vec3 total_movement = t.translation() - origin;
+
+    if (length2(_angular_velocity) > 0)
+    {
+        _angular_velocity *= 1 - angular_drag;
+        glm::vec3 rotation_vector = _angular_velocity * delta.count();
+        float rotation_length = length(rotation_vector);
+        glm::quat old_rot = t.rotation();
+        glm::quat rotation{ cos(rotation_length / 2), rotation_vector / rotation_length * sin(rotation_length / 2) };
+        rotation *= old_rot;
+        float f = 1;
+        float best_f = 0;
+        int step = 0;
+        CollisionVolume* last_touched = nullptr;
+        CollisionVolume* bounce_target = nullptr;
+        do
+        {
+            last_touched = nullptr;
+            t.translation(origin + total_movement * f);
+            t.rotation(glm::slerp(old_rot, rotation, f));
+            for (auto* other_cv : Physics::instance().overlap(cv.buildCollisions()))
+            {
+                if (other_cv == &cv) continue;
+                last_touched = other_cv;
+                break;
+            }
+            float f_change = 1.f / (1 << ++step);
+            if (last_touched)
+            {
+                bounce_target = last_touched;
+                f -= f_change;
+            }
+            else
+            {
+                best_f = f;
+                f += f_change;
+            }
+        } while (step < 4 && f < 1);
+        t.translation(origin + total_movement * best_f);
+        t.rotation(glm::slerp(old_rot, rotation, best_f));
+        if (bounce_target && length2(total_movement) > 0)
+        {
+            glm::vec3 dir = normalize(total_movement);
+            Intersection inter{ getFarthestPoint(cv.buildCollisions(), dir), dir, best_f };
+            handleBounce(inter, nullptr);
+        }
+    }
 }
 
 glm::vec3 PhysicsMovement::velocity() const

@@ -701,6 +701,32 @@ Obb growBy(Obb x, float by)
     return x;
 }
 
+glm::vec3 getFarthestPoint(const Sphere& x, const glm::vec3& dir)
+{
+    return x.center + dir * x.radius;
+}
+
+glm::vec3 getFarthestPoint(const Aabb& x, const glm::vec3& dir)
+{
+    glm::vec3 result = x.center;
+    for (int a = 0; a < 3; ++a)
+    {
+        result += x.extents[a] * sign(dir[a]);
+    }
+    return result;
+}
+
+glm::vec3 getFarthestPoint(const Obb& x, glm::vec3 dir)
+{
+    dir = conjugate(x.rotation) * dir;
+    glm::vec3 result = x.center;
+    for (int a = 0; a < 3; ++a)
+    {
+        result += x.extents[a] * sign(dir[a]);
+    }
+    return result;
+}
+
 bool intersect(const AnyCol& l, const AnyCol& r)
 {
     return std::visit([](const auto& l, const auto& r) {return intersect(l, r); }, l, r);
@@ -714,4 +740,9 @@ std::optional<Intersection> intersectMoving(const AnyCol& l, const AnyCol& r, co
 AnyCol growBy(AnyCol x, float by)
 {
     return std::visit<AnyCol>([&](const auto& x) { return growBy(x, by); }, x);
+}
+
+glm::vec3 getFarthestPoint(const AnyCol& x, const glm::vec3& dir)
+{
+    return std::visit([&](const auto& x) { return getFarthestPoint(x, dir); }, x);
 }

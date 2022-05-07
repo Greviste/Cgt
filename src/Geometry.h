@@ -81,9 +81,14 @@ Sphere growBy(Sphere x, float by);
 Aabb growBy(Aabb x, float by);
 Obb growBy(Obb x, float by);
 
+glm::vec3 getFarthestPoint(const Sphere& x, const glm::vec3& dir);
+glm::vec3 getFarthestPoint(const Aabb& x, const glm::vec3& dir);
+glm::vec3 getFarthestPoint(const Obb& x, glm::vec3 dir);
+
 //Dispatch
 bool intersect(const AnyCol& l, const AnyCol& r);
 std::optional<Intersection> intersectMoving(const AnyCol& l, const AnyCol& r, const glm::vec3& movement);
 AnyCol growBy(AnyCol x, float by);
+glm::vec3 getFarthestPoint(const AnyCol& x, const glm::vec3& dir);
 
 #endif
