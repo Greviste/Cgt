@@ -77,6 +77,7 @@ int main(void)
         if (window == NULL) throw std::runtime_error("Window creation failure");
 
         glfwMakeContextCurrent(window);
+        glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_TRUE);
         glfwSetKeyCallback(window, key_callback);
 
         glewExperimental = true;

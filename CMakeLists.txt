@@ -36,6 +36,8 @@ set(PROJECT_SOURCES
 	src/Collider.cpp
 	src/Physics.h
 	src/Physics.cpp
+	src/Input.h
+	src/Input.cpp
 )
 set(PROJECT_SHADERS
 	res/vertex_shader.glsl

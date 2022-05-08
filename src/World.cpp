@@ -2,6 +2,7 @@
 #include "Entity.h"
 #include "Component.h"
 #include "Light.h"
+#include "Input.h"
 #include <algorithm>
 
 Entity& World::createEntity()
@@ -12,6 +13,8 @@ Entity& World::createEntity()
 
 void World::update(Seconds s)
 {
+    Inputs::instance().update();
+
     _tick_remainder += s;
     while (_tick_remainder >= _tick_period)
     {
