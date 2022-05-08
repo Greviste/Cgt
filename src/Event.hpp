@@ -31,9 +31,9 @@ public:
     {
         _callables.erase(Utility::forEachRemovable(_callables, [&](auto& p) {
             if (!p.first) return true;
-            p.first->*p.second(args...); //No forward as the elements may be shared by multiple functions and should not be moved
+            (p.first->*p.second)(args...); //No forward as the elements may be shared by multiple functions and should not be moved
             return false;
-            }, end(_callables)));
+            }), end(_callables));
     }
 
     template<typename... CallArgs>
