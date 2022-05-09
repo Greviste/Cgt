@@ -8,8 +8,7 @@
 
 Entity& World::createEntity()
 {
-    _entities.emplace_back(new Entity(*this));
-    return *_entities.back();
+    return *_entities.emplace_back(new Entity(*this));
 }
 
 void World::update(Seconds s)
@@ -29,9 +28,9 @@ void World::update(Seconds s)
     {
         _should_cleanup = false;
         auto it = _entities.begin();
-        erase_if(_entities, [](auto& ptr) { return ptr->_marked_for_destroy; });
         forEachManager([&s](ComponentManagerBase& m) { m.cleanup(s); });
     }
+    erase_if(_entities, [](auto& ptr) { return ptr->_marked_for_destroy; });
 }
 
 extern GLFWwindow* window;
