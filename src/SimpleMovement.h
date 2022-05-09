@@ -19,6 +19,9 @@ public:
 private:
     float _fixed_height = 0.1;
     float _speed = 1;
+    float _rotation_ratio = -0.01;
+    float _horizontal_angle = 0;
+    float _vertical_angle = 0;
     WeakRef<Terrain> _terrain;
 };
 
