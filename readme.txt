@@ -13,8 +13,7 @@ Puis pour exécuter :
 
 Commandes :
     ZQSD    Déplacement
-    C       Mode orbital On/Off (Utilise aussi ZQSD)
-    UP/DOWN Modifier la vitesse de rotation du mode orbital
+    Clic G  Lancer une sphère
 
 
 

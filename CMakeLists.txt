@@ -41,6 +41,10 @@ set(PROJECT_SOURCES
 	src/Input.cpp
 	src/Camera.h
 	src/Camera.cpp
+	src/SphereSpawner.h
+	src/SphereSpawner.cpp
+	src/TimedDestroy.h
+	src/TimedDestroy.cpp
 )
 set(PROJECT_SHADERS
 	res/vertex_shader.glsl

@@ -23,6 +23,7 @@
 #include "Collider.h"
 #include "Camera.h"
 #include "Utility.h"
+#include "SphereSpawner.h"
 
 template<auto D>
 struct RaiiCall
@@ -108,6 +109,7 @@ int main(void)
         player.buildComponent<Transformation>().translation({ 0,2,0.5 });
         player.buildComponent<Camera>();
         player.buildComponent<SimpleMovement>();
+        player.buildComponent<SphereSpawner>();
 
         auto last_tick = std::chrono::high_resolution_clock::now();
         do
