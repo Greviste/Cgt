@@ -17,6 +17,7 @@ bool KeyPoller::update(bool& val)
 MousePoller::MousePoller()
 {
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetCursorPos(window, 0, 0);
 }
 
 bool MousePoller::update(glm::vec2& val)
@@ -26,6 +27,7 @@ bool MousePoller::update(glm::vec2& val)
     glm::vec2 old = val;
     val.x = xpos;
     val.y = ypos;
+    glfwSetCursorPos(window, 0, 0);
     return val != old;
 }
 
