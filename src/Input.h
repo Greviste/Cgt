@@ -72,6 +72,16 @@ public:
 private:
 };
 
+class MouseButtonPoller : public Input<bool>::Poller
+{
+public:
+    explicit MouseButtonPoller(int keycode);
+
+    bool update(bool& val) override;
+private:
+    int _keycode;
+};
+
 class Inputs
 {
     friend class World;
@@ -82,6 +92,7 @@ public:
     Input<bool> backward{ KeyPoller{GLFW_KEY_S} };
     Input<bool> left{ KeyPoller{GLFW_KEY_A} };
     Input<bool> right{ KeyPoller{GLFW_KEY_D} };
+    Input<bool> attack{ MouseButtonPoller{GLFW_MOUSE_BUTTON_LEFT} };
 
     Input<glm::vec2> look{ MousePoller{} };
 private:

@@ -44,4 +44,17 @@ void Inputs::update()
     left.update();
     right.update();
     look.update();
+    attack.update();
+}
+
+MouseButtonPoller::MouseButtonPoller(int keycode)
+    :_keycode{ keycode }
+{
+}
+
+bool MouseButtonPoller::update(bool& val)
+{
+    bool old = val;
+    val = glfwGetMouseButton(window, _keycode) == GLFW_PRESS;
+    return val != old;
 }
