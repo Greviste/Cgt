@@ -2,6 +2,8 @@
 #define CGT_UTILITY_HPP
 
 #include <iterator>
+#include <filesystem>
+#include "Mesh.h"
 
 namespace Utility
 {
@@ -23,6 +25,8 @@ namespace Utility
 
         return write_it;
     }
+
+    Image loadImage(std::filesystem::path filename);
 }
 
 #endif

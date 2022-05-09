@@ -27,6 +27,7 @@ set(PROJECT_SOURCES
 	src/SimpleMovement.cpp
 	src/ComponentManager.hpp
 	src/Utility.h
+	src/Utility.cpp
 	src/Event.hpp
 	src/Light.h
 	src/Light.cpp

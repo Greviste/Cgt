@@ -22,6 +22,7 @@
 #include "Light.h"
 #include "Collider.h"
 #include "Camera.h"
+#include "Utility.h"
 
 template<auto D>
 struct RaiiCall
@@ -33,20 +34,7 @@ struct RaiiCall
 };
 
 using namespace SafeGl;
-
-Image loadImage(std::filesystem::path filename)
-{
-    int x, y, channels;
-    SafeHandle<void*, stbi_image_free> data(stbi_load(filename.string().c_str(), &x, &y, &channels, 4));
-    if (!data) throw std::invalid_argument("Unable to open texture file");
-    Image img;
-    img.width = x;
-    img.height = y;
-    img.pixels.resize(x * y);
-    memcpy(img.pixels.data(), data, img.pixels.size() * sizeof(Rgba));
-
-    return img;
-}
+using namespace Utility;
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 GLFWwindow* window = nullptr;
