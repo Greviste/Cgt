@@ -21,6 +21,7 @@
 #include "SimpleMovement.h"
 #include "Light.h"
 #include "Collider.h"
+#include "Camera.h"
 
 template<auto D>
 struct RaiiCall
@@ -47,20 +48,7 @@ Image loadImage(std::filesystem::path filename)
     return img;
 }
 
-void processInput(GLFWwindow* window);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
-
-glm::vec3 camera_position = glm::vec3(0.0f, 1.5f, 3.0f);
-glm::vec3 camera_target = glm::vec3(0.0f, 0.0f, -1.0f);
-glm::vec3 camera_up = glm::vec3(0.0f, 1.0f, 0.0f);
-float orbital_angle = 0;
-float orbital_dist = 9;
-float rotation_speed = 1;
-
-
-std::chrono::duration<float> delta_time;
-bool orbital_mode = false;
-
 GLFWwindow* window = nullptr;
 
 int main(void)
@@ -128,31 +116,20 @@ int main(void)
         light.buildComponent<Transformation>(glm::vec3(0.0f, 5.0f, 10.0f), glm::vec3(-0.1,0,0));
         light.buildComponent<Light>();
 
+        Entity& player = world.createEntity();
+        player.buildComponent<Transformation>().translation({ 0,2,0.5 });
+        player.buildComponent<Camera>();
+        player.buildComponent<SimpleMovement>();
+
         auto last_tick = std::chrono::high_resolution_clock::now();
         do
         {
             auto this_tick = std::chrono::high_resolution_clock::now();
-            delta_time = this_tick - last_tick;
+            std::chrono::duration<float> delta_time = this_tick - last_tick;
             last_tick = this_tick;
 
-            processInput(window);
             world.update(delta_time);
-
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-            glm::mat4 view;
-            if (orbital_mode)
-            {
-                view = rotate(rotate(translate(glm::mat4(1.0), glm::vec3(0, 0, -orbital_dist)), glm::radians(45.f), glm::vec3(1, 0, 0)), orbital_angle, glm::vec3(0, 1, 0));
-            }
-            else
-            {
-                view = glm::lookAt(camera_position, camera_position + camera_target, camera_up);
-            }
-            //view = light.findComponent<Transformation>()->invMatrix();
-            glm::mat4 projection = glm::perspective(glm::radians(45.f), 4.f / 3, 0.1f, 100.f);
-
-            world.draw(view, projection);
+            world.draw();
 
             glfwSwapBuffers(window);
             glfwPollEvents();
@@ -176,39 +153,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
         case GLFW_KEY_ESCAPE:
             glfwSetWindowShouldClose(window, true);
             break;
-        case GLFW_KEY_C:
-            orbital_mode = !orbital_mode;
-            break;
         }
     }
 }
 
-void processInput(GLFWwindow* window)
-{
-    //Camera zoom in and out
-    float cameraSpeed = 2.5f * delta_time.count();
-    glm::vec3 rightVector = normalize(cross(camera_target, camera_up));
-
-    if (orbital_mode)
-    {
-        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-            orbital_dist -= cameraSpeed;
-        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-            orbital_dist += cameraSpeed;
-        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-            orbital_angle += rotation_speed * delta_time.count();
-        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-            orbital_angle -= rotation_speed * delta_time.count();
-    }
-    else
-    {
-        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-            camera_position += cameraSpeed * camera_target;
-        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-            camera_position -= cameraSpeed * camera_target;
-        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-            camera_position += cameraSpeed * rightVector;
-        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-            camera_position -= cameraSpeed * rightVector;
-    }
-}

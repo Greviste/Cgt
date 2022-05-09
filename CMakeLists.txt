@@ -38,6 +38,8 @@ set(PROJECT_SOURCES
 	src/Physics.cpp
 	src/Input.h
 	src/Input.cpp
+	src/Camera.h
+	src/Camera.cpp
 )
 set(PROJECT_SHADERS
 	res/vertex_shader.glsl

@@ -3,6 +3,7 @@
 #include "Component.h"
 #include "Light.h"
 #include "Input.h"
+#include "Camera.h"
 #include <algorithm>
 
 Entity& World::createEntity()
@@ -35,22 +36,31 @@ void World::update(Seconds s)
 
 extern GLFWwindow* window;
 
-void World::draw(const glm::mat4& v, const glm::mat4& p) const
+void World::draw() const
 {
-    glm::mat4 inv_v = inverse(v);
-    _lights.clear();
-    for (const Light* light : getAll<Light>())
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    if (Camera* cam = Camera::main())
     {
-        _lights.push_back(light->buildData());
-        _lights.back().pos = v * glm::vec4(_lights.back().pos, 1);
-        _lights.back().vp *= inv_v;
+        glm::mat4 v = cam->get<Transformation>().invMatrix();
+        glm::mat4 inv_v = cam->get<Transformation>().matrix();
+        glm::mat4 p = cam->projectionMatrix();
+
+        _lights.clear();
+        for (const Light* light : getAll<Light>())
+        {
+            _lights.push_back(light->buildData());
+            _lights.back().pos = v * glm::vec4(_lights.back().pos, 1);
+            _lights.back().vp *= inv_v;
+        }
+
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        int w, h;
+        glfwGetWindowSize(window, &w, &h);
+        glViewport(0, 0, w, h);
+        glCullFace(GL_BACK);
+
+        for (auto& elem : _managers) elem.second->draw(v, p);
     }
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    int w, h;
-    glfwGetWindowSize(window, &w, &h);
-    glViewport(0, 0, w, h);
-    glCullFace(GL_BACK);
-    for (auto& elem : _managers) elem.second->draw(v, p);
 }
 
 void World::drawGeometry(const glm::mat4& v, const glm::mat4& p) const

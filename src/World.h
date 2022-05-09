@@ -29,7 +29,7 @@ class World
 public:
     Entity& createEntity();
     void update(Seconds);
-    void draw(const glm::mat4& v, const glm::mat4& p) const;
+    void draw() const;
     void drawGeometry(const glm::mat4& v, const glm::mat4& p) const;
     template<typename T>
     auto getAll()
