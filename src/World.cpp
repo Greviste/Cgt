@@ -69,7 +69,7 @@ void World::drawGeometry(const glm::mat4& v, const glm::mat4& p) const
 
 void World::tickOnce()
 {
-    forEachManager([=](ComponentManagerBase& m) { m.tick(_tick_period); });
+    forEachManager([_tick_period=_tick_period](ComponentManagerBase& m) { m.tick(_tick_period); });
 }
 
 const std::vector<LightData>& World::lightData() const
