@@ -64,7 +64,7 @@ void setUnitCube(MeshData& o_mesh)
     o_mesh.vertices.resize(24);
     o_mesh.normals.resize(24);
     o_mesh.uvs.resize(24);
-    o_mesh.triangles.resize(16);
+    o_mesh.triangles.resize(12);
     for (unsigned a = 0; a < 3; ++a)
     {
         unsigned a1 = (a + 1) % 3;
@@ -184,7 +184,7 @@ Mesh::Mesh(const MeshData& data)
     if (!data.uvs.empty())
     {
         glEnableVertexAttribArray(2);
-        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)((data.normals.empty() ? 3 : 6) * sizeof(float)));
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)((data.normals.empty() ? 3 : 6) * sizeof(float)));
     }
     _size = data.triangles.size() * 3;
 }
