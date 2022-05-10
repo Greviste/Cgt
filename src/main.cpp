@@ -50,7 +50,7 @@ int main(void)
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-        window = glfwCreateWindow(1024, 768, "TP2", NULL, NULL);
+        window = glfwCreateWindow(1024, 768, "CGT", NULL, NULL);
         if (window == NULL) throw std::runtime_error("Window creation failure");
 
         glfwMakeContextCurrent(window);
